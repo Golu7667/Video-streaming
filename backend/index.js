@@ -8,7 +8,7 @@ const io = socketIo(server, {
   pingTimeout: 60000,
   cors: {
     // origin: "https://chat-app-two-pi-40.vercel.app",
-    origin:"http://localhost:3000",
+    origin:"https://webrtc-brown.vercel.app",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   },
