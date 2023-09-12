@@ -5,7 +5,7 @@ import RoomPage from "./screens/Room";
 
 function App() {
   return (
-    <div className="App">
+    <div >
       <Routes>
         <Route path="/" element={<LobbyScreen />} />
         <Route path="/room/:roomId" element={<RoomPage />} />
