@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketProvider";
-import { Box, Input, Button, HStack, VStack, Center ,Img} from "@chakra-ui/react";
+import { Box, Input, Button, HStack, VStack, Center ,Img,Text} from "@chakra-ui/react";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import video from "../vide.svg"
  
@@ -37,22 +37,26 @@ const LobbyScreen = () => {
 
   return (
    <>
-   <HStack>
-    <Box w="50%">
-      <Img src={video }/>
-    </Box>
-
+  
+  
+  
+    
+  <center>
     <Box
     backgroundColor="white"
-    w={[400, 400, 700]}
-    h="100vh"
+    w="70%"
+    h="80vh"
+    my="10vh"
     rounded="30px"
     boxShadow="dark-lg"
-    
+   
   >
- 
-    <Center h="full">
-      <VStack spacing="20px" item="center">
+   <HStack>
+   <Box  w="50%" h="80vh"  backgroundImage={`url(${video})`}  backgroundSize="cover" px="0px" mx="0px">
+   
+   </Box>
+   <Box w="50%" h="80vh" display="flex" alignItems="center">
+      <VStack spacing="30px" item="center">
         <FormControl id="email" isRequired>
         <HStack>
           <FormLabel color="black">Email</FormLabel>
@@ -80,7 +84,8 @@ const LobbyScreen = () => {
         </FormControl> 
         <Button
                   variant="solid"
-                  colorScheme="blue"
+                  colorScheme="green"
+                  backgroundColor="#000000"
                   width="100%"
                   onClick={()=>{
                            navigate("/signup")
@@ -89,9 +94,12 @@ const LobbyScreen = () => {
                Join
                 </Button>
       </VStack>
-    </Center>
+      </Box>
+      </HStack>
     </Box>
-    </HStack>
+   
+    </center>
+
     </>
   );
 };
