@@ -1,7 +1,10 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketProvider";
-
+import { Box, Input, Button, HStack, VStack, Center ,Img} from "@chakra-ui/react";
+import { FormControl, FormLabel } from "@chakra-ui/form-control";
+import video from "../vide.svg"
+ 
 const LobbyScreen = () => {
   const [email, setEmail] = useState("");
   const [room, setRoom] = useState("");
@@ -33,36 +36,63 @@ const LobbyScreen = () => {
   }, [socket, handleJoinRoom]);
 
   return (
-    <div style={{display:"flex", alignItems:"center",justifyContent:"center",width:"100vw",height:"100vh"}} >
-      <div style={{}} >
-      <h1>Enter video call </h1>
-      </div>
-      <div style={{width:"50vw",height:"50vh"}} >
-      <form onSubmit={handleSubmitForm}>
-      <div  style={{display:"flex", alignItems:"center",justifyContent:"center", gap:"30px"}}>
-        <label htmlFor="email">Email ID</label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{borderRadius:"10px",height:"30px"}}
-        />
-       </div>
-       <div  style={{display:"flex", alignItems:"center",justifyContent:"center"}}>
-        <label htmlFor="room">Room Number</label>
-        <input
-          type="text"
-          id="room"
-          value={room}
-          onChange={(e) => setRoom(e.target.value)}
-          style={{borderRadius:"10px",height:"30px"}}
-        />
-       </div>
-        <button  style={{display:"flex", alignItems:"center",justifyContent:"center"}}>Join</button>
-      </form>
-      </div>
-    </div>
+   <>
+   <HStack>
+    <Box w="50%">
+      <Img src={video }/>
+    </Box>
+
+    <Box
+    backgroundColor="white"
+    w={[400, 400, 700]}
+    h="100vh"
+    rounded="30px"
+    boxShadow="dark-lg"
+    
+  >
+ 
+    <Center h="full">
+      <VStack spacing="20px" item="center">
+        <FormControl id="email" isRequired>
+        <HStack>
+          <FormLabel color="black">Email</FormLabel>
+          <Input
+            value={email}
+            type="email"
+            placeholder="Enter Your Email Address"
+            onChange={(e) => setEmail(e.target.value)}
+            bg="white"
+          />
+          </HStack>
+        </FormControl>
+
+        <FormControl id="email" isRequired>
+        <HStack>
+          <FormLabel color="black">Room</FormLabel>
+          <Input
+            value={email}
+            type="email"
+            placeholder="Enter Your Room Number"
+            onChange={(e) => setEmail(e.target.value)}
+            bg="white"
+          />
+            </HStack>
+        </FormControl> 
+        <Button
+                  variant="solid"
+                  colorScheme="blue"
+                  width="100%"
+                  onClick={()=>{
+                           navigate("/signup")
+                  }}
+                >
+               Join
+                </Button>
+      </VStack>
+    </Center>
+    </Box>
+    </HStack>
+    </>
   );
 };
 
