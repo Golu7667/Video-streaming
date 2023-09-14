@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketProvider";
-import { Box, Input, Button, HStack, VStack, Center ,Img,Text} from "@chakra-ui/react";
+import { Box, Input, Button, HStack, VStack, Center ,Img,Text, Divider} from "@chakra-ui/react";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import video from "../vide.svg"
  
@@ -13,8 +13,8 @@ const LobbyScreen = () => {
   const navigate = useNavigate();
 
   const handleSubmitForm = useCallback(
-    (e) => {
-      e.preventDefault();
+    () => {
+     
       socket.emit("room:join", { email, room });
     },
     [email, room, socket]
@@ -38,25 +38,32 @@ const LobbyScreen = () => {
   return (
    <>
   
+  <Center>
+  <VStack>
+  <Text fontFamily="bold" fontSize="2xl" mt="10px">Welcome To My Video Call App </Text>
+  <Divider w={["70px","300px","400px"]} h="10px" color="black" bgColor="black" mb="10Px"/>
+  </VStack>
+  </Center>
+ <Center>
+ 
   
-  
-    
-  <center>
     <Box
     backgroundColor="white"
-    w="70%"
+    w={["100%","70%","70%"]}
     h="80vh"
-    my="10vh"
+   
     rounded="30px"
     boxShadow="dark-lg"
    
   >
    <HStack>
-   <Box  w="50%" h="80vh"  backgroundImage={`url(${video})`}  backgroundSize="cover" px="0px" mx="0px">
-   
+  
+   <Box display={{ base: "none", md: "flex" }}w={["50%","100%","100%"]} h="78vh"  >
+    <Img src={video}/>
    </Box>
-   <Box w="50%" h="80vh" display="flex" alignItems="center">
+   <Box w={["100%","100%","100%"]} h="80vh" display={{ base: "flex" }} alignItems="center" justifyContent="center">
       <VStack spacing="30px" item="center">
+      <Text fontFamily="bold" fontSize='4xl'>Login</Text>
         <FormControl id="email" isRequired>
         <HStack>
           <FormLabel color="black">Email</FormLabel>
@@ -74,10 +81,10 @@ const LobbyScreen = () => {
         <HStack>
           <FormLabel color="black">Room</FormLabel>
           <Input
-            value={email}
+            value={room}
             type="email"
             placeholder="Enter Your Room Number"
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setRoom(e.target.value)}
             bg="white"
           />
             </HStack>
@@ -85,10 +92,11 @@ const LobbyScreen = () => {
         <Button
                   variant="solid"
                   colorScheme="green"
-                  backgroundColor="#000000"
+                  backgroundColor="green"
                   width="100%"
                   onClick={()=>{
-                           navigate("/signup")
+                    handleSubmitForm()
+                  
                   }}
                 >
                Join
@@ -97,8 +105,8 @@ const LobbyScreen = () => {
       </Box>
       </HStack>
     </Box>
-   
-    </center>
+    
+    </Center>
 
     </>
   );
