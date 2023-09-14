@@ -2,6 +2,17 @@ import React, { useEffect, useCallback, useState } from "react";
 import ReactPlayer from "react-player";
 import peer from "../service/peer";
 import { useSocket } from "../context/SocketProvider";
+import {
+  Box,
+  Input,
+  Button,
+  HStack,
+  VStack,
+  Center,
+  Img,
+  Text,
+  Divider,
+} from "@chakra-ui/react";
 
 const RoomPage = () => {
   const socket = useSocket();
@@ -110,36 +121,70 @@ const RoomPage = () => {
   ]);
 
   return (
-    <div>
+    <>
+    <VStack>
+     <Center>
       <h1>Room Page</h1>
       <h4>{remoteSocketId ? "Connected" : "No one in room"}</h4>
-      {myStream && <button onClick={sendStreams}>Send Stream</button>}
-      {remoteSocketId && <button onClick={handleCallUser}>CALL</button>}
+      {myStream && (
+        <Button
+          variant="solid"
+          colorScheme="green"
+          backgroundColor="green"
+          width="100px"
+          onClick={sendStreams}
+        >
+          Send Stream
+        </Button>
+      )}
+      {remoteSocketId && (
+        <Button
+          variant="solid"
+          colorScheme="green"
+          backgroundColor="green"
+          width="100px"
+          onClick={handleCallUser}
+        >
+          CALL
+        </Button>
+      )}
+      </Center>
+       </VStack>
+      <HStack w="100%" h="400px">
+      <Box w="50%" h="400px" >
       {myStream && (
         <>
           <h1>My Stream</h1>
           <ReactPlayer
             playing
             muted
-            height="100px"
-            width="200px"
+            height="400px"
+            width="530px"
             url={myStream}
+         style={{ borderRadius: '50px' ,border:"5px solid black",overflow:"hidden"}}
           />
         </>
       )}
+      </Box>
+      <Box w="50%" h="400px">
       {remoteStream && (
         <>
           <h1>Remote Stream</h1>
           <ReactPlayer
             playing
             muted
-            height="100px"
-            width="200px"
+            height="400px"
+            width="530px"
             url={remoteStream}
+            style={{ borderRadius: '50px' ,border:"5px solid black",overflow:"hidden"}}
           />
         </>
+
       )}
-    </div>
+      </Box>
+      </HStack>
+     </>
+    
   );
 };
 
