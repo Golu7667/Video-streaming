@@ -12,6 +12,7 @@ import {
   Img,
   Text,
   Divider,
+  Circle
 } from "@chakra-ui/react";
 
 const RoomPage = () => {
@@ -150,10 +151,10 @@ const RoomPage = () => {
       )}
       </Center>
        </VStack>
-      <HStack w="100%" h="400px">
-      <Box w="50%" h="400px" >
+      <HStack w="100%" h="87vh">
+      <Box w="50%" h="400px" display="flex" justifyContent="center" alignItems="center">
       {myStream && (
-        <>
+        <VStack>
           <h1>My Stream</h1>
           <ReactPlayer
             playing
@@ -161,14 +162,17 @@ const RoomPage = () => {
             height="400px"
             width="530px"
             url={myStream}
-         style={{ borderRadius: '50px' ,border:"5px solid black",overflow:"hidden"}}
+         style={{borderRadius:"30px",overflow:"hidden"}}
           />
-        </>
+          <Circle size='40px' bg='tomato' color='white'>
+   h
+  </Circle>
+        </VStack>
       )}
       </Box>
-      <Box w="50%" h="400px">
+      <Box w="50%" h="400px" display="flex" justifyContent="center" alignItems="center">
       {remoteStream && (
-        <>
+        <VStack>
           <h1>Remote Stream</h1>
           <ReactPlayer
             playing
@@ -176,13 +180,18 @@ const RoomPage = () => {
             height="400px"
             width="530px"
             url={remoteStream}
-            style={{ borderRadius: '50px' ,border:"5px solid black",overflow:"hidden"}}
+            style={{ borderRadius: '30px' ,overflow:"hidden"}}
           />
-        </>
+        </VStack>
 
       )}
       </Box>
       </HStack>
+       <Center>
+       <Box w="400px" h="40px" bgColor="blue" borderRadius="10px">
+
+       </Box>
+       </Center>
      </>
     
   );
