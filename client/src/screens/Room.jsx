@@ -12,15 +12,18 @@ import {
   Img,
   Text,
   Divider,
-  Circle
+  Circle,
+  Heading
 } from "@chakra-ui/react";
+import {FiPhone} from "react-icons/fi"
+import {VscCallIncoming} from "react-icons/vsc"
 
 const RoomPage = () => {
   const socket = useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
-
+  console.log(remoteSocketId)
   const handleUserJoined = useCallback(({ email, id }) => {
     console.log(`Email ${email} joined room`);
     setRemoteSocketId(id);
@@ -125,37 +128,19 @@ const RoomPage = () => {
     <>
     <VStack>
      <Center>
-      <h1>Room Page</h1>
+     <VStack>
+      <Heading>Video Call</Heading>
       <h4>{remoteSocketId ? "Connected" : "No one in room"}</h4>
-      {myStream && (
-        <Button
-          variant="solid"
-          colorScheme="green"
-          backgroundColor="green"
-          width="100px"
-          onClick={sendStreams}
-        >
-          Send Stream
-        </Button>
-      )}
-      {remoteSocketId && (
-        <Button
-          variant="solid"
-          colorScheme="green"
-          backgroundColor="green"
-          width="100px"
-          onClick={handleCallUser}
-        >
-          CALL
-        </Button>
-      )}
+      </VStack>
+     
       </Center>
        </VStack>
-      <HStack w="100%" h="87vh">
-      <Box w="50%" h="400px" display="flex" justifyContent="center" alignItems="center">
+      <HStack w="100%" h="82vh">
+      <VStack w="50%" >
+      <Box w="50%" h="400px" display="flex" justifyContent="center" alignItems="center" boxShadow="dark-lg" borderRadius="10px" >
       {myStream && (
         <VStack>
-          <h1>My Stream</h1>
+         
           <ReactPlayer
             playing
             muted
@@ -164,16 +149,33 @@ const RoomPage = () => {
             url={myStream}
          style={{borderRadius:"30px",overflow:"hidden"}}
           />
-          <Circle size='40px' bg='tomato' color='white'>
-   h
-  </Circle>
+        
         </VStack>
       )}
       </Box>
-      <Box w="50%" h="400px" display="flex" justifyContent="center" alignItems="center">
+      <Center>
+      <Box w="50%"  >
+      {remoteSocketId && (
+        <Button
+          variant="solid"
+          colorScheme="green"
+          backgroundColor="green"
+          width="200px"
+          onClick={handleCallUser}
+        >
+          <FiPhone/>
+          CALL
+        </Button>
+      )}  
+     
+      </Box>
+      </Center>
+      </VStack>
+      <VStack w="50%">
+      <Box w="50%" h="400px" display="flex" justifyContent="center" alignItems="center" boxShadow="dark-lg" borderRadius="10px">
       {remoteStream && (
         <VStack>
-          <h1>Remote Stream</h1>
+          
           <ReactPlayer
             playing
             muted
@@ -186,12 +188,26 @@ const RoomPage = () => {
 
       )}
       </Box>
+      <Center>
+      <Box w="50%">
+      {myStream && (
+        <Button
+           variant="solid"
+          colorScheme="green"
+          backgroundColor="green"
+          width="200px"
+          onClick={sendStreams}
+        > 
+        <VscCallIncoming/>
+          Call Accepte
+        </Button>
+      )}
+     
+      </Box>
+      </Center>
+      </VStack>
       </HStack>
-       <Center>
-       <Box w="400px" h="40px" bgColor="blue" borderRadius="10px">
-
-       </Box>
-       </Center>
+       
      </>
     
   );
