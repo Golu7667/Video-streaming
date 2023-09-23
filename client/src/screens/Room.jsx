@@ -13,17 +13,20 @@ import {
   Text,
   Divider,
   Circle,
-  Heading
+  Heading,
+  Skeleton,
 } from "@chakra-ui/react";
-import {FiPhone} from "react-icons/fi"
-import {VscCallIncoming} from "react-icons/vsc"
+import { FiPhone } from "react-icons/fi";
+import { VscCallIncoming } from "react-icons/vsc";
 
 const RoomPage = () => {
   const socket = useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
-  console.log(remoteSocketId)
+  const [callButton, setCallButton] = useState(false);
+
+  console.log(remoteSocketId);
   const handleUserJoined = useCallback(({ email, id }) => {
     console.log(`Email ${email} joined room`);
     setRemoteSocketId(id);
@@ -37,6 +40,7 @@ const RoomPage = () => {
     const offer = await peer.getOffer();
     socket.emit("user:call", { to: remoteSocketId, offer });
     setMyStream(stream);
+    setCallButton(true);
   }, [remoteSocketId, socket]);
 
   const handleIncommingCall = useCallback(
@@ -93,6 +97,18 @@ const RoomPage = () => {
     await peer.setLocalDescription(ans);
   }, []);
 
+  const handleDisconnect = () => {
+    socket.emit("call:disconnect", { to: remoteSocketId });
+
+    if (myStream) {
+      myStream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    }
+
+    setRemoteStream(null);
+    setRemoteSocketId(null);
+  };
   useEffect(() => {
     peer.peer.addEventListener("track", async (ev) => {
       const remoteStream = ev.streams;
@@ -126,90 +142,111 @@ const RoomPage = () => {
 
   return (
     <>
-    <VStack>
-     <Center>
-     <VStack>
-      <Heading>Video Call</Heading>
-      <h4>{remoteSocketId ? "Connected" : "No one in room"}</h4>
+      <VStack>
+        <Center>
+          <VStack>
+            <Heading>Video Call</Heading>
+            <h4>{remoteSocketId ? "Connected" : "No one in room"}</h4>
+          </VStack>
+        </Center>
       </VStack>
-     
-      </Center>
-       </VStack>
       <HStack w="100%" h="82vh">
-      <VStack w="50%" >
-      <Box w="50%" h="400px" display="flex" justifyContent="center" alignItems="center" boxShadow="dark-lg" borderRadius="10px" >
-      {myStream && (
-        <VStack>
-         
-          <ReactPlayer
-            playing
-            muted
-            height="400px"
-            width="530px"
-            url={myStream}
-         style={{borderRadius:"30px",overflow:"hidden"}}
-          />
-        
+        <VStack w="50%">
+          <Box
+            w="100%"
+            h="400px"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            boxShadow="dark-lg"
+            borderRadius="10px"
+          >
+            {myStream && (
+              <VStack>
+                <ReactPlayer
+                  playing
+                  muted
+                  height="400px"
+                  width="530px"
+                  url={myStream}
+                  style={{ borderRadius: "30px", overflow: "hidden" }}
+                />
+              </VStack>
+            )}
+          </Box>
+          <Center>
+            <Box w="50%">
+              {remoteSocketId && (
+                <Button
+                  variant="solid"
+                  colorScheme="green"
+                  backgroundColor="green"
+                  width="200px"
+                  onClick={handleCallUser}
+                >
+                  <FiPhone />
+                  CALL
+                </Button>
+              )}
+            </Box>
+          </Center>
         </VStack>
-      )}
-      </Box>
-      <Center>
-      <Box w="50%"  >
+        <VStack w="50%">
+          <Box
+            w="100%"
+            h="400px"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            boxShadow="dark-lg"
+            borderRadius="10px"
+          >
+            {!remoteStream && !callButton && (
+              <Skeleton w="100%" h="400px" bg="blue.500" />
+            )}
+            {remoteStream && (
+              <VStack>
+                <ReactPlayer
+                  playing
+                  muted
+                  height="400px"
+                  width="530px"
+                  url={remoteStream}
+                  style={{ borderRadius: "30px", overflow: "hidden" }}
+                />
+              </VStack>
+            )}
+          </Box>
+          <Center>
+            <Box w="50%">
+              {myStream && (
+                <Button
+                  variant="solid"
+                  colorScheme="green"
+                  backgroundColor="green"
+                  width="200px"
+                  onClick={sendStreams}
+                >
+                  <VscCallIncoming />
+                  Call Accepte
+                </Button>
+              )}
+            </Box>
+          </Center>
+        </VStack>
+      </HStack>
       {remoteSocketId && (
         <Button
           variant="solid"
-          colorScheme="green"
-          backgroundColor="green"
+          colorScheme="red"
+          backgroundColor="red"
           width="200px"
-          onClick={handleCallUser}
+          onClick={handleDisconnect}
         >
-          <FiPhone/>
-          CALL
-        </Button>
-      )}  
-     
-      </Box>
-      </Center>
-      </VStack>
-      <VStack w="50%">
-      <Box w="50%" h="400px" display="flex" justifyContent="center" alignItems="center" boxShadow="dark-lg" borderRadius="10px">
-      {remoteStream && (
-        <VStack>
-          
-          <ReactPlayer
-            playing
-            muted
-            height="400px"
-            width="530px"
-            url={remoteStream}
-            style={{ borderRadius: '30px' ,overflow:"hidden"}}
-          />
-        </VStack>
-
-      )}
-      </Box>
-      <Center>
-      <Box w="50%">
-      {myStream && (
-        <Button
-           variant="solid"
-          colorScheme="green"
-          backgroundColor="green"
-          width="200px"
-          onClick={sendStreams}
-        > 
-        <VscCallIncoming/>
-          Call Accepte
+          Disconnect
         </Button>
       )}
-     
-      </Box>
-      </Center>
-      </VStack>
-      </HStack>
-       
-     </>
-    
+    </>
   );
 };
 

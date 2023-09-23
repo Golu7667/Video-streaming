@@ -27,12 +27,25 @@ io.on("connection", (socket) => {
   });
 
   socket.on("peer:nego:needed", ({ to, offer }) => {
-    console.log("peer:nego:needed", offer);
+    console.log("peer:nego:needed");
     io.to(to).emit("peer:nego:needed", { from: socket.id, offer });
   });
 
   socket.on("peer:nego:done", ({ to, ans }) => {
-    console.log("peer:nego:done", ans);
+    console.log("peer:nego:done");
     io.to(to).emit("peer:nego:final", { from: socket.id, ans });
   });
+  
+  socket.on("disconnect", () => { 
+    const email = socketidToEmailMap.get(socket.id);
+    console.log(email)
+    if (email) {
+      emailToSocketIdMap.delete(email);
+      socketidToEmailMap.delete(socket.id);
+    }
+    console.log(`Socket Disconnected`, socket.id);
+  });
+
 });
+
+
