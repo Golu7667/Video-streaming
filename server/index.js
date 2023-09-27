@@ -10,7 +10,9 @@ const socketidToEmailMap = new Map();
 io.on("connection", (socket) => {
   console.log(`Socket Connected`, socket.id);
   socket.on("room:join", (data) => {
+   
     const { email, room } = data;
+    console.log(email,room)
     emailToSocketIdMap.set(email, socket.id);
     socketidToEmailMap.set(socket.id, email);
     io.to(room).emit("user:joined", { email, id: socket.id });
@@ -36,16 +38,17 @@ io.on("connection", (socket) => {
     io.to(to).emit("peer:nego:final", { from: socket.id, ans });
   });
   
-  socket.on("disconnect", () => { 
+  socket.on("call:disconnect", () => { 
     const email = socketidToEmailMap.get(socket.id);
+    console.log("discone")
     console.log(email)
     if (email) {
       emailToSocketIdMap.delete(email);
       socketidToEmailMap.delete(socket.id);
     }
-    console.log(`Socket Disconnected`, socket.id);
+    console.log(`Socket Disconnected`, socket.id);   
   });
 
-});
+}); 
 
 

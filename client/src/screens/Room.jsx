@@ -15,9 +15,11 @@ import {
   Circle,
   Heading,
   Skeleton,
+  
 } from "@chakra-ui/react";
 import { FiPhone } from "react-icons/fi";
 import { VscCallIncoming } from "react-icons/vsc";
+import video from "../vide.svg"
 
 const RoomPage = () => {
   const socket = useSocket();
@@ -105,8 +107,8 @@ const RoomPage = () => {
         track.stop();
       });
     }
-
-    setRemoteStream(null);
+   
+    setRemoteStream();
     setRemoteSocketId(null);
   };
   useEffect(() => {
@@ -115,7 +117,7 @@ const RoomPage = () => {
       console.log("GOT TRACKS!!");
       setRemoteStream(remoteStream[0]);
     });
-  }, []);
+  }, [setRemoteStream]);
 
   useEffect(() => {
     socket.on("user:joined", handleUserJoined);
@@ -123,13 +125,14 @@ const RoomPage = () => {
     socket.on("call:accepted", handleCallAccepted);
     socket.on("peer:nego:needed", handleNegoNeedIncomming);
     socket.on("peer:nego:final", handleNegoNeedFinal);
-
+    socket.on("call:disconnect", handleDisconnect);
     return () => {
       socket.off("user:joined", handleUserJoined);
       socket.off("incomming:call", handleIncommingCall);
       socket.off("call:accepted", handleCallAccepted);
       socket.off("peer:nego:needed", handleNegoNeedIncomming);
       socket.off("peer:nego:final", handleNegoNeedFinal);
+      socket.off("call:disconnect", handleDisconnect)
     };
   }, [
     socket,
@@ -138,6 +141,7 @@ const RoomPage = () => {
     handleCallAccepted,
     handleNegoNeedIncomming,
     handleNegoNeedFinal,
+    handleDisconnect
   ]);
 
   return (
@@ -145,13 +149,16 @@ const RoomPage = () => {
       <VStack>
         <Center>
           <VStack>
-            <Heading>Video Call</Heading>
-            <h4>{remoteSocketId ? "Connected" : "No one in room"}</h4>
+            <HStack  mt="10px" >
+            <Img  src={video} w="40px"/> 
+            <Heading fontFamily="Arvo">Video Call</Heading>
+            </HStack>
+            <Text fontFamily="Arvo">{remoteSocketId ? "Connected" : "No one in room"}</Text>
           </VStack>
         </Center>
       </VStack>
-      <HStack w="100%" h="82vh">
-        <VStack w="50%">
+      <Box w="100%"  display={{ base: "block", md: "flex" }} my="10px">
+        <Box w={["100%","100%","50%"]} my="10px">
           <Box
             w="100%"
             h="400px"
@@ -167,7 +174,7 @@ const RoomPage = () => {
                   playing
                   muted
                   height="400px"
-                  width="530px"
+                  width="100%"
                   url={myStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
@@ -175,7 +182,7 @@ const RoomPage = () => {
             )}
           </Box>
           <Center>
-            <Box w="50%">
+            
               {remoteSocketId && (
                 <Button
                   variant="solid"
@@ -183,15 +190,16 @@ const RoomPage = () => {
                   backgroundColor="green"
                   width="200px"
                   onClick={handleCallUser}
+                  mt="10px"
                 >
                   <FiPhone />
                   CALL
                 </Button>
               )}
-            </Box>
+           
           </Center>
-        </VStack>
-        <VStack w="50%">
+        </Box>
+        <Box w={["100%","100%","50%"]} my="10px">
           <Box
             w="100%"
             h="400px"
@@ -201,7 +209,7 @@ const RoomPage = () => {
             boxShadow="dark-lg"
             borderRadius="10px"
           >
-            {!remoteStream && !callButton && (
+            {!remoteStream && callButton && (
               <Skeleton w="100%" h="400px" bg="blue.500" />
             )}
             {remoteStream && (
@@ -210,7 +218,7 @@ const RoomPage = () => {
                   playing
                   muted
                   height="400px"
-                  width="530px"
+                  width="100%"
                   url={remoteStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
@@ -218,7 +226,7 @@ const RoomPage = () => {
             )}
           </Box>
           <Center>
-            <Box w="50%">
+           
               {myStream && (
                 <Button
                   variant="solid"
@@ -226,15 +234,17 @@ const RoomPage = () => {
                   backgroundColor="green"
                   width="200px"
                   onClick={sendStreams}
+                  mt="10px"
                 >
                   <VscCallIncoming />
                   Call Accepte
                 </Button>
               )}
-            </Box>
+           
           </Center>
-        </VStack>
-      </HStack>
+        </Box>
+      </Box>
+       <Center >
       {remoteSocketId && (
         <Button
           variant="solid"
@@ -242,10 +252,12 @@ const RoomPage = () => {
           backgroundColor="red"
           width="200px"
           onClick={handleDisconnect}
+          
         >
           Disconnect
         </Button>
       )}
+      </Center>
     </>
   );
 };
