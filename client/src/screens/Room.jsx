@@ -108,8 +108,8 @@ const RoomPage = () => {
       });
     }
    
-    setRemoteStream();
-    setRemoteSocketId(null);
+    
+    
   };
   useEffect(() => {
     peer.peer.addEventListener("track", async (ev) => {

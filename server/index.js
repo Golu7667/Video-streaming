@@ -12,7 +12,7 @@ io.on("connection", (socket) => {
   socket.on("room:join", (data) => {
    
     const { email, room } = data;
-    console.log(email,room)
+    console.log(email,room,socket.id)
     emailToSocketIdMap.set(email, socket.id);
     socketidToEmailMap.set(socket.id, email);
     io.to(room).emit("user:joined", { email, id: socket.id });
@@ -40,9 +40,10 @@ io.on("connection", (socket) => {
   
   socket.on("call:disconnect", () => { 
     const email = socketidToEmailMap.get(socket.id);
-    console.log("discone")
+    console.log("disconnect")
     console.log(email)
     if (email) {
+      console.log(email)
       emailToSocketIdMap.delete(email);
       socketidToEmailMap.delete(socket.id);
     }
