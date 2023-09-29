@@ -49,19 +49,22 @@ const LobbyScreen = () => {
   
     <Box
     backgroundColor="white"
-    w={["100%","70%","70%"]}
-    h="80vh"
-   
+    w={["100%","96%","80%"]}
+    h={["100%","100%","80vh"]}
+    display={{ base: "block", md: "flex" }}
     rounded="30px"
     boxShadow="dark-lg"
-   
+    my="30px"
+    py="10px"
   >
-   <HStack>
+   
   
-   <Box display={{ base: "none", md: "flex" }}w={["50%","100%","100%"]} h="78vh"  >
-    <Img src={video}/>
+   <Box display={{ base: "flex", md: "flex" }} w={["100%","100%","100%"]}  justifyContent="center" alignItems="center" overflow="hidden"> 
+   
+    <Img src={video} w={["70%","80%","70%"]} overflow="hidden"/> 
+   
    </Box>
-   <Box w={["100%","100%","100%"]} h="80vh" display={{ base: "flex" }} alignItems="center" justifyContent="center">
+   <Center w={["100%","100%","50%"]}  display={{ base: "flex", md: "flex" }} alignItems="center" justifyContent="center" px="20px" pb="10px">
       <VStack spacing="30px" item="center">
       <Text fontFamily="bold" fontSize='4xl'>Login</Text>
         <FormControl id="email" isRequired>
@@ -102,8 +105,8 @@ const LobbyScreen = () => {
                Join
                 </Button>
       </VStack>
-      </Box>
-      </HStack>
+      </Center>
+      
     </Box>
     
     </Center>
