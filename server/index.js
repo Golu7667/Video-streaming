@@ -1,9 +1,14 @@
 const { Server } = require("socket.io");
+const connetDatabase=require("./config/db")
+const dotenv=require("dotenv").config();
+
+connetDatabase()
+
 
 const io = new Server(8000, {
   cors: true,
 });
-
+console.log(io)
 const emailToSocketIdMap = new Map();
 const socketidToEmailMap = new Map();
 
