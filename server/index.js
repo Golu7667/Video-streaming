@@ -1,14 +1,24 @@
+const express=require("express")
 const { Server } = require("socket.io");
 const connetDatabase=require("./config/db")
 const dotenv=require("dotenv").config();
+const userRoutes=require("./routes/userRoutes")
+const app=express()
+const cors=require("cors")
 
 connetDatabase()
+app.use(cors({origin:"http://localhost:3000"}))
+app.use(express.json())
+app.use("/api/use",userRoutes)
 
-
-const io = new Server(8000, {
-  cors: true,
+ app.get("/",(req,res)=>{ 
+  res.send("server is running")
+ })
+ 
+const io = new Server(8080, {
+  cors: true, 
 });
-console.log(io)
+
 const emailToSocketIdMap = new Map();
 const socketidToEmailMap = new Map();
 
@@ -16,7 +26,7 @@ io.on("connection", (socket) => {
   console.log(`Socket Connected`, socket.id);
   socket.on("room:join", (data) => {
    
-    const { email, room } = data;
+    const { email, room ,name} = data;
     console.log(email,room,socket.id)
     emailToSocketIdMap.set(email, socket.id);
     socketidToEmailMap.set(socket.id, email);
@@ -56,5 +66,7 @@ io.on("connection", (socket) => {
   });
 
 }); 
-
+app.listen(8000,()=>{
+  console.log("server conected")
+})
 
