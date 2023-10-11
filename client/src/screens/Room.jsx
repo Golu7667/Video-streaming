@@ -27,6 +27,8 @@ const RoomPage = () => {
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
   const [callButton, setCallButton] = useState(false);
+  const [audio,setAudio]=useState(false)
+  const [audioStatus, setAudioStatus] = useState('silent');
 
   console.log(remoteSocketId);
   const handleUserJoined = useCallback(({ email, id }) => {
@@ -39,11 +41,110 @@ const RoomPage = () => {
       audio: true,
       video: true,
     });
-    const offer = await peer.getOffer();
-    socket.emit("user:call", { to: remoteSocketId, offer });
+    // const offer = await peer.getOffer();
+    // socket.emit("user:call", { to: remoteSocketId, offer });
+     if(stream.getAudioTracks().length>0){
+      console.log("loud1")
+      setAudio(true)
+     }else{
+      console.log("not loud")
+      setAudio(false)
+     }
     setMyStream(stream);
     setCallButton(true);
-  }, [remoteSocketId, socket]);
+  }, [remoteSocketId, socket,setMyStream]);
+
+ 
+
+  useEffect(() => {
+    const updateAudioStatus = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      try {
+        
+        if (stream.getAudioTracks().length > 0) {
+          const audioTrack = stream.getAudioTracks()[0];
+          if (audioTrack.enabled) {
+            console.log("Audio is available and enabled.");
+            setAudio(true);
+          } else {
+            console.log("Audio is available but not enabled.");
+            setAudio(false);
+          }
+        }
+       
+      } catch (error) {
+        console.error('Error accessing audio:', error);
+        setAudio(false);
+      }
+    
+    };
+
+    // Initially check audio status
+    updateAudioStatus();
+
+    // Set up a timer to periodically check the audio status
+    const audioCheckInterval = setInterval(updateAudioStatus, 1000); // Check every 10 seconds
+
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(audioCheckInterval);
+  }, []);
+
+  useEffect(() => {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    const analyzeAudio = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        // Create an audio source node from the stream
+        const audioSource = audioContext.createMediaStreamSource(stream);
+
+        // Create an analyzer node to process the audio
+        const analyzer = audioContext.createAnalyser();
+        analyzer.fftSize = 256;
+
+        // Connect the audio source to the analyzer
+        audioSource.connect(analyzer);
+
+        const dataArray = new Uint8Array(analyzer.frequencyBinCount);
+
+        // Function to continuously check audio volume and update status
+        const checkAudioVolume = () => {
+          analyzer.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
+
+          // Adjust the threshold based on your environment
+          const threshold = 10;
+
+          if (average > threshold) {
+            setAudioStatus('speaking');
+          } else {
+            setAudioStatus('silent');
+          }
+          requestAnimationFrame(checkAudioVolume); // Continuously update status
+        };
+
+        // Start analyzing audio
+        audioContext.resume().then(() => {
+          analyzer.connect(audioContext.destination);
+          checkAudioVolume();
+        });
+      } catch (error) {
+        console.error('Error accessing audio:', error);
+        setAudioStatus('error');
+      }
+    };
+
+    // Initialize audio analysis
+    analyzeAudio();
+
+    return () => {
+      audioContext.close();
+    };
+  }, []);
+ 
+
+
 
   const handleIncommingCall = useCallback(
     async ({ from, offer }) => {
@@ -183,7 +284,7 @@ const RoomPage = () => {
           </Box>
           <Center>
             
-              {remoteSocketId && (
+              (
                 <Button
                   variant="solid"
                   colorScheme="green"
@@ -195,7 +296,7 @@ const RoomPage = () => {
                   <FiPhone />
                   CALL
                 </Button>
-              )}
+              )
            
           </Center>
         </Box>
@@ -258,6 +359,7 @@ const RoomPage = () => {
         </Button>
       )}
       </Center>
+      <h1>Audio Status: {audioStatus}</h1>
     </>
   );
 };

@@ -36,7 +36,7 @@ const LobbyScreen = () => {
       try{
       const {user}=await axios.post("http://localhost:8000/api/use/",{email,name})
        toast({
-        title:"User Register",
+        title:"User Join",
         status:"success",
         duration:5000, 
         isClosable: true,
@@ -45,11 +45,13 @@ const LobbyScreen = () => {
       }catch(error){
         toast({
           title:"User Not Register",
+          description:error,
           status:"error",
           duration:5000,
           isClosable: true,
           position: "bottom",
          })
+         console.log(error)
       }
       navigate(`/room/${room}`);
     },
