@@ -20,6 +20,9 @@ import {
 import { FiPhone } from "react-icons/fi";
 import { VscCallIncoming } from "react-icons/vsc";
 import video from "../vide.svg"
+import waveAudio from "../digital-wave-audio.svg"
+import {CiMicrophoneOn,CiMicrophoneOff} from "react-icons/ci"
+
 
 const RoomPage = () => {
   const socket = useSocket();
@@ -29,12 +32,19 @@ const RoomPage = () => {
   const [callButton, setCallButton] = useState(false);
   const [audio,setAudio]=useState(false)
   const [audioStatus, setAudioStatus] = useState('silent');
+  const [mute,setMute]=useState(false)
 
   console.log(remoteSocketId);
   const handleUserJoined = useCallback(({ email, id }) => {
     console.log(`Email ${email} joined room`);
     setRemoteSocketId(id);
   }, []);
+ 
+   const handelmute=()=>{
+    console.log("handlemute working")
+    setMute(!mute)
+   }
+
 
   const handleCallUser = useCallback(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -57,44 +67,11 @@ const RoomPage = () => {
  
 
   useEffect(() => {
-    const updateAudioStatus = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      try {
-        
-        if (stream.getAudioTracks().length > 0) {
-          const audioTrack = stream.getAudioTracks()[0];
-          if (audioTrack.enabled) {
-            console.log("Audio is available and enabled.");
-            setAudio(true);
-          } else {
-            console.log("Audio is available but not enabled.");
-            setAudio(false);
-          }
-        }
-       
-      } catch (error) {
-        console.error('Error accessing audio:', error);
-        setAudio(false);
-      }
-    
-    };
-
-    // Initially check audio status
-    updateAudioStatus();
-
-    // Set up a timer to periodically check the audio status
-    const audioCheckInterval = setInterval(updateAudioStatus, 1000); // Check every 10 seconds
-
-    // Clean up the interval when the component unmounts
-    return () => clearInterval(audioCheckInterval);
-  }, []);
-
-  useEffect(() => {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     const analyzeAudio = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: !mute ? true : false});
 
         // Create an audio source node from the stream
         const audioSource = audioContext.createMediaStreamSource(stream);
@@ -114,7 +91,7 @@ const RoomPage = () => {
           const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
 
           // Adjust the threshold based on your environment
-          const threshold = 10;
+          const threshold = 30;
 
           if (average > threshold) {
             setAudioStatus('speaking');
@@ -141,7 +118,7 @@ const RoomPage = () => {
     return () => {
       audioContext.close();
     };
-  }, []);
+  }, [mute]);
  
 
 
@@ -262,7 +239,7 @@ const RoomPage = () => {
         <Box w={["100%","100%","50%"]} my="10px">
           <Box
             w="100%"
-            h="400px"
+            h="460px"
             display="flex"
             justifyContent="center"
             alignItems="center"
@@ -279,8 +256,21 @@ const RoomPage = () => {
                   url={myStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
+                 <Box width="100px"  height="40px"  bgColor="green.100" borderRadius="10px">
+                 <HStack>{
+                  mute? <CiMicrophoneOff  style={{ fontSize: '2em' }}  onClick={handelmute}/> :
+                <CiMicrophoneOn style={{ fontSize: '2em' }} onClick={handelmute}/>
+                 }
+                 {audioStatus!=="silent" && mute == false ? <Img src={waveAudio} width="40px"/>   
+                 :mute==true ?<Text fontFamily="Arvo" color="green"  width="50px" height="20px">Mute</Text> :<Text width="40px" height="40px">.</Text>
+                 }
+                 </HStack>
+                 </Box> 
+               
               </VStack>
+
             )}
+           
           </Box>
           <Center>
             
@@ -359,7 +349,7 @@ const RoomPage = () => {
         </Button>
       )}
       </Center>
-      <h1>Audio Status: {audioStatus}</h1>
+     
     </>
   );
 };
