@@ -33,6 +33,8 @@ const RoomPage = () => {
   const [audio,setAudio]=useState(false)
   const [audioStatus, setAudioStatus] = useState('silent');
   const [mute,setMute]=useState(false)
+  const [remoteAudioStatus,setremoteAudioStatus]=useState('silent')
+  const [remoteMute,setRemoteMute]=useState(false)
 
   console.log(remoteSocketId);
   const handleUserJoined = useCallback(({ email, id }) => {
@@ -44,22 +46,19 @@ const RoomPage = () => {
     console.log("handlemute working")
     setMute(!mute)
    }
-
+  
+   const handelremotemute=()=>{
+    setRemoteMute(!remoteMute)
+   }
 
   const handleCallUser = useCallback(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: true,
     });
-    // const offer = await peer.getOffer();
-    // socket.emit("user:call", { to: remoteSocketId, offer });
-     if(stream.getAudioTracks().length>0){
-      console.log("loud1")
-      setAudio(true)
-     }else{
-      console.log("not loud")
-      setAudio(false)
-     }
+    const offer = await peer.getOffer();
+    socket.emit("user:call", { to: remoteSocketId, offer });
+     
     setMyStream(stream);
     setCallButton(true);
   }, [remoteSocketId, socket,setMyStream]);
@@ -120,6 +119,65 @@ const RoomPage = () => {
     };
   }, [mute]);
  
+  useEffect(() => {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    const analyzeAudio = async () => {
+      try {
+        
+
+        // Create an audio source node from the stream
+        const audioSource = audioContext.createMediaStreamSource(remoteStream);
+
+        // Create an analyzer node to process the audio
+        const analyzer = audioContext.createAnalyser();
+        analyzer.fftSize = 256;
+
+        // Connect the audio source to the analyzer
+        audioSource.connect(analyzer);
+
+        const dataArray = new Uint8Array(analyzer.frequencyBinCount);
+
+        // Function to continuously check audio volume and update status
+        const checkAudioVolume = () => {
+          analyzer.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
+
+          // Adjust the threshold based on your environment
+          const threshold = 30;
+
+          if (average > threshold) {
+            setremoteAudioStatus('speaking');
+          } else {
+            setremoteAudioStatus('silent');
+          }
+          requestAnimationFrame(checkAudioVolume); // Continuously update status
+        };
+
+        // Start analyzing audio
+        audioContext.resume().then(() => {
+          analyzer.connect(audioContext.destination);
+          checkAudioVolume();
+        });
+      } catch (error) {
+        console.error('Error accessing audio:', error);
+        setremoteAudioStatus('error');
+      }
+    };
+
+    // Initialize audio analysis
+    analyzeAudio();
+
+    return () => {
+      audioContext.close();
+    };
+  }, [remoteMute]);
+
+
+
+
+
+
 
 
 
@@ -192,6 +250,7 @@ const RoomPage = () => {
   useEffect(() => {
     peer.peer.addEventListener("track", async (ev) => {
       const remoteStream = ev.streams;
+      console.log(remoteStream[0])
       console.log("GOT TRACKS!!");
       setRemoteStream(remoteStream[0]);
     });
@@ -293,7 +352,7 @@ const RoomPage = () => {
         <Box w={["100%","100%","50%"]} my="10px">
           <Box
             w="100%"
-            h="400px"
+            h="460px"
             display="flex"
             justifyContent="center"
             alignItems="center"
@@ -313,6 +372,17 @@ const RoomPage = () => {
                   url={remoteStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
+                <Box width="100px"  height="40px"  bgColor="green.100" borderRadius="10px">
+                 <HStack>{
+                  remoteMute? <CiMicrophoneOff  style={{ fontSize: '2em' }}  onClick={handelremotemute}/> :
+                <CiMicrophoneOn style={{ fontSize: '2em' }} onClick={handelremotemute}/>
+                 }
+                 {remoteAudioStatus!=="silent" && remoteMute == false ? <Img src={waveAudio} width="40px"/>   
+                 :remoteMute==true ?<Text fontFamily="Arvo" color="green"  width="50px" height="20px">Mute</Text> :<Text width="40px" height="40px">.</Text>
+                 }
+                 </HStack>
+                 </Box> 
+               
               </VStack>
             )}
           </Box>
