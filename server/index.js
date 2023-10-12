@@ -5,7 +5,7 @@ const dotenv=require("dotenv").config();
 const userRoutes=require("./routes/userRoutes")
 const app=express()
 const cors=require("cors")
-
+const os = require('os'); 
 connetDatabase()
 app.use(cors({origin:"https://videocall-mauve.vercel.app"}))
 app.use(express.json())
@@ -66,7 +66,21 @@ io.on("connection", (socket) => {
   });
 
 }); 
-app.listen(8000,()=>{
-  console.log("server conected")
-})
+const server = app.listen(8000, () => {
+  const networkInterfaces = os.networkInterfaces();
+  let localIPAddress = '';
 
+  for (const key in networkInterfaces) {
+    for (const network of networkInterfaces[key]) {
+      if (network.family === 'IPv4' && !network.internal) {
+        localIPAddress = network.address;
+        break;
+      }
+    }
+    if (localIPAddress) {
+      break;
+    }
+  }
+
+  console.log(`Server is running at http://${localIPAddress}`);
+});
