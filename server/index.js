@@ -7,7 +7,7 @@ const app=express()
 const cors=require("cors")
 
 connetDatabase()
-app.use(cors({origin:"http://localhost:3000"}))
+app.use(cors({origin:"https://videocall-mauve.vercel.app/"}))
 app.use(express.json())
 app.use("/api/use",userRoutes)
 
