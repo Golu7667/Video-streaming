@@ -26,8 +26,8 @@ app.use("/api/use",userRoutes)
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "https://videocall-mauve.vercel.app",
-    // origin:"http://localhost:3000",
+    // origin: "https://videocall-mauve.vercel.app",
+    origin:"https://videocall-mauve.vercel.app",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   },

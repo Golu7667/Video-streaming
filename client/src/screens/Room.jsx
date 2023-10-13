@@ -52,13 +52,17 @@ const RoomPage = () => {
    }
 
   const handleCallUser = useCallback(async () => {
+
+    
+   
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
+     
       video: true,
+      audio: true,
     });
     const offer = await peer.getOffer();
     socket.emit("user:call", { to: remoteSocketId, offer });
-     
+   
     setMyStream(stream);
     setCallButton(true);
   }, [remoteSocketId, socket,setMyStream]);
@@ -66,14 +70,16 @@ const RoomPage = () => {
  
 
   useEffect(() => {
+    console.log(callButton)
+    
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
+   console.log("audio working in useEffect")
     const analyzeAudio = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: !mute ? true : false});
+        const stream1 = await navigator.mediaDevices.getUserMedia({ audio: !mute ? true: false});
 
         // Create an audio source node from the stream
-        const audioSource = audioContext.createMediaStreamSource(stream);
+        const audioSource = audioContext.createMediaStreamSource(stream1);
 
         // Create an analyzer node to process the audio
         const analyzer = audioContext.createAnalyser();
@@ -102,7 +108,7 @@ const RoomPage = () => {
 
         // Start analyzing audio
         audioContext.resume().then(() => {
-          analyzer.connect(audioContext.destination);
+          // analyzer.connect(audioContext.destination);
           checkAudioVolume();
         });
       } catch (error) {
@@ -117,7 +123,8 @@ const RoomPage = () => {
     return () => {
       audioContext.close();
     };
-  }, [mute]);
+  
+  }, []);
  
   useEffect(() => {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
