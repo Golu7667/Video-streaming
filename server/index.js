@@ -6,6 +6,8 @@ const userRoutes=require("./routes/userRoutes")
 const app=express()
 const cors=require("cors")
 const os = require('os'); 
+const axios = require('axios');
+
 connetDatabase()
 app.use(cors({origin:"https://videocall-mauve.vercel.app"}))
 app.use(express.json())
@@ -15,8 +17,20 @@ app.use("/api/use",userRoutes)
   res.send("server is running")
  })
  
-const io = new Server(8080, {
-  cors: true, 
+ const server = app.listen(8000, async () => {
+   console.log("server is connected")
+});
+
+
+
+const io = require("socket.io")(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "https://videocall-mauve.vercel.app",
+    // origin:"http://localhost:3000",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  },
 });
 
 const emailToSocketIdMap = new Map();
@@ -66,21 +80,3 @@ io.on("connection", (socket) => {
   });
 
 }); 
-const server = app.listen(8000, () => {
-  const networkInterfaces = os.networkInterfaces();
-  let localIPAddress = '';
-
-  for (const key in networkInterfaces) {
-    for (const network of networkInterfaces[key]) {
-      if (network.family === 'IPv4' && !network.internal) {
-        localIPAddress = network.address;
-        break;
-      }
-    }
-    if (localIPAddress) {
-      break;
-    }
-  }
-
-  console.log(`Server is running at http://${localIPAddress}`);
-});
