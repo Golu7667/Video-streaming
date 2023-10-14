@@ -131,10 +131,10 @@ const RoomPage = () => {
 
     const analyzeAudio = async () => {
       try {
-        
+        const stream1 = await navigator.mediaDevices.getUserMedia({ audio: !remoteMute ? true: false});
 
         // Create an audio source node from the stream
-        const audioSource = audioContext.createMediaStreamSource(remoteStream);
+        const audioSource = audioContext.createMediaStreamSource(stream1);
 
         // Create an analyzer node to process the audio
         const analyzer = audioContext.createAnalyser();
