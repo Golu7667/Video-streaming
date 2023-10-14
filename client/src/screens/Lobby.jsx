@@ -34,7 +34,7 @@ const LobbyScreen = () => {
       const { email, room ,name} = data;
       console.log(name)
       try{
-      const {user}=await axios.post("http://localhost:8000/api/use/",{email,name})
+      const {user}=await axios.post("https://videocall-ddov.onrender.com/api/use/",{email,name})
        toast({
         title:"User Join",
         status:"success",
