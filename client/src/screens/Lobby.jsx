@@ -16,6 +16,9 @@ import {
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import video from "../vide.svg";
 import axios from "axios"
+
+
+
 const LobbyScreen = () => {
   const [email, setEmail] = useState("");
   const [room, setRoom] = useState("");
@@ -24,6 +27,20 @@ const LobbyScreen = () => {
   const socket = useSocket();
   const navigate = useNavigate();
   const toast = useToast();
+
+ 
+  
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("userInfo"));
+    if (user){
+      
+      navigate(`/room/1`);
+    }else{
+      navigate('/')
+    }
+  }, [navigate]); 
+
 
   const handleSubmitForm = useCallback(() => {
     socket.emit("room:join", { email, room ,name});
@@ -34,14 +51,20 @@ const LobbyScreen = () => {
       const { email, room ,name} = data;
       console.log(name)
       try{
-      const {user}=await axios.post("https://videocall-ddov.onrender.com/api/use/",{email,name})
+      const user= await axios.post("http://localhost:8000/api/use/",{email,name})
+      console.log(user.data)  
        toast({
         title:"User Join",
         status:"success",
         duration:5000, 
-        isClosable: true,
+        isClosable: true, 
         position: "bottom",
-       })
+       }) 
+     
+     localStorage.setItem("userInfo", JSON.stringify(user.data)); 
+      
+     navigate(`room/${room}`);
+
       }catch(error){
         toast({
           title:"User Not Register",
@@ -53,7 +76,7 @@ const LobbyScreen = () => {
          })
          console.log(error)
       }
-      navigate(`/room/${room}`);
+     
     },
     [navigate]
   );

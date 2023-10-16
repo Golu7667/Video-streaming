@@ -9,15 +9,22 @@ const userData = asyncHandler(async (req, res, next) => {
     throw new Error("Please enter all feilds");
   }
 
-  const userExits = await User.find({ email });
-
+  const userExits = await User.findOne({ email });
+   console.log(userExits)
   if (userExits) {
-    res.status(200).json({message:"user join"});
+    const user=await User.findOne({email})
+    
+    res.status(201).json({
+      _id:user._id,
+      email: user.email,
+      name:user.name,
+    });
+    
 
   } else {
     const user = await User.create({
       name: name,
-      gmail: email,
+      email: email,
     });
 
     if (user) {
