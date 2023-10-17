@@ -32,15 +32,26 @@ const LobbyScreen = () => {
   
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("userInfo"));
-    if (user){
-      
-      navigate(`/room/1`);
-    }else{
-      navigate('/')
+    const userInfoString = localStorage.getItem("userInfo");
+    
+    if (userInfoString) {
+      try {
+        const user = JSON.parse(userInfoString);
+        // Check if user is valid JSON
+        if (user && typeof user === 'object') {
+          navigate(`/room/1`);
+        } else {
+          navigate('/');
+        }
+      } catch (error) {
+        console.error("Error parsing JSON from localStorage:", error);
+        navigate('/');
+      }
+    } else {
+      navigate('/');
     }
-  }, [navigate]); 
-
+  }, [navigate]);
+  
 
   const handleSubmitForm = useCallback(() => {
     socket.emit("room:join", { email, room ,name});

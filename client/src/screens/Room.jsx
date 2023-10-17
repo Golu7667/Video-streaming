@@ -46,7 +46,26 @@ const RoomPage = () => {
   
 
 
-
+  useEffect(() => {
+    const userInfoString = localStorage.getItem("userInfo");
+    
+    if (userInfoString) {
+      try {
+        const user = JSON.parse(userInfoString);
+        // Check if user is valid JSON
+        if (user && typeof user === 'object') {
+          navigate(`/room/1`);
+        } else {
+          navigate('/');
+        }
+      } catch (error) {
+        console.error("Error parsing JSON from localStorage:", error);
+        navigate('/');
+      }
+    } else {
+      navigate('/');
+    }
+  }, []);
 
   const handleUserJoined = useCallback(({ email, id }) => {
     console.log(`Email ${email} joined room`);   
