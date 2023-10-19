@@ -23,33 +23,20 @@ const LobbyScreen = () => {
   const [email, setEmail] = useState("");
   const [room, setRoom] = useState("");
   const [name,setName]=useState("")
-
-  const socket = useSocket();
+  
+  const {socket,user} = useSocket();
   const navigate = useNavigate();
   const toast = useToast();
-
+ console.log(user)
  
   
 
   useEffect(() => {
-    const userInfoString = localStorage.getItem("userInfo");
-    
-    if (userInfoString) {
-      try {
-        const user = JSON.parse(userInfoString);
-        // Check if user is valid JSON
-        if (user && typeof user === 'object') {
-          navigate(`/room/1`);
-        } else {
-          navigate('/');
-        }
-      } catch (error) {
-        console.error("Error parsing JSON from localStorage:", error);
-        navigate('/');
-      }
-    } else {
-      navigate('/');
-    }
+   if(user){
+    navigate("/home")
+   }else{
+    navigate("/")
+   }
   }, [navigate]);
   
 
@@ -74,7 +61,7 @@ const LobbyScreen = () => {
      
      localStorage.setItem("userInfo", JSON.stringify(user.data)); 
       
-     navigate(`room/${room}`);
+     navigate(`/home`);
 
       }catch(error){
         toast({

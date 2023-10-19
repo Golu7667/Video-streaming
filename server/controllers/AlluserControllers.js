@@ -7,7 +7,7 @@ const allUserData=asyncHandler(async(req,res,next)=>{
     const user=await User.find({})
     console.log(user)
 
-    res.status(200).json({user})
+    res.send(user)
 
 })
 

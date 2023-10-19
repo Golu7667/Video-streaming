@@ -65,7 +65,7 @@ const RoomPage = () => {
     } else {
       navigate('/');
     }
-  }, []);
+  }, [navigate]);
 
   const handleUserJoined = useCallback(({ email, id }) => {
     console.log(`Email ${email} joined room`);   
