@@ -7,6 +7,8 @@ const app=express()
 const cors=require("cors")
 const os = require('os'); 
 const axios = require('axios');
+const User=require("./models/userModel")
+
 
 connetDatabase()
 app.use(cors({origin:"http://localhost:3000"}))
@@ -33,19 +35,33 @@ const io = require("socket.io")(server, {
   },
 });
 
-const emailToSocketIdMap = new Map();
+const emailToSocketIdMap = new Map();  
 const socketidToEmailMap = new Map();
 
 io.on("connection", (socket) => {
   console.log(`Socket Connected`, socket.id);
-  socket.on("room:join", (data) => {
-   
+  socket.on("room:join", async(data) => {
+    
     const { email, room ,name} = data;
     console.log(email,room,socket.id)
     emailToSocketIdMap.set(email, socket.id);
-    socketidToEmailMap.set(socket.id, email);
-    io.to(room).emit("user:joined", { email, id: socket.id });
+    socketidToEmailMap.set(socket.id, email); 
+    io.to(room).emit("user:joined", { email, id: socket.id }); 
     socket.join(room);
+    const updatedUser = await User.findOneAndUpdate(
+      { email: email }, 
+
+      { $set: { active: true } },
+      
+    {
+      new: true,
+    }
+      )
+      if (updatedUser) {
+        console.log("User is updated");
+      } else {
+        console.log("User not found or update failed");
+      }
     io.to(socket.id).emit("room:join", data);
   });
 

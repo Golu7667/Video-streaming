@@ -28,7 +28,7 @@ import { useNavigate } from "react-router-dom";
 
 
 const RoomPage = () => {
-  const socket = useSocket();
+  const {socket,user} = useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
@@ -40,28 +40,18 @@ const RoomPage = () => {
   const [remoteMute,setRemoteMute]=useState(false)
   const navigate=useNavigate()
 
-
+ 
 
   console.log(remoteSocketId);
   
 
 
   useEffect(() => {
-    const userInfoString = localStorage.getItem("userInfo");
+   
     
-    if (userInfoString) {
-      try {
-        const user = JSON.parse(userInfoString);
-        // Check if user is valid JSON
-        if (user && typeof user === 'object') {
-          navigate(`/room/1`);
-        } else {
-          navigate('/');
-        }
-      } catch (error) {
-        console.error("Error parsing JSON from localStorage:", error);
-        navigate('/');
-      }
+    if (user) {
+      navigate("/room/1")
+     
     } else {
       navigate('/');
     }

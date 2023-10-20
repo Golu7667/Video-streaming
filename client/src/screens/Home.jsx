@@ -25,23 +25,18 @@ const HomePage = () => {
   const {user}=useSocket()
   
 
+ 
+
 
   console.log(data);
-
+  console.log(login)
   const handeluser = async () => {
     const allusers = await axios.get("http://localhost:8000/api/use/users");
     const userdata = allusers.data;
     setData(userdata);
   };
 
-  useEffect(() => {
-    if(user){
-      navigate("/home")
-    }else{
-      navigate("/")
-    }
   
-  }, [navigate]);
 
 
 
@@ -51,8 +46,8 @@ const HomePage = () => {
   }
  const handleSignout=()=>{
   console.log("logout") 
-  localStorage.removeItem("userInfo");
-
+  localStorage.removeItem("userInfo"); 
+  navigate("/")
  }
 
 
@@ -96,7 +91,8 @@ const HomePage = () => {
               justifyContent="center"
               alignItems="center"
               overflowY="auto"
-      
+             
+              p="50px"
             >
               {data.length === 0 && (
                 <Button
@@ -145,13 +141,17 @@ const HomePage = () => {
                 />
                 <Text fontFamily="Arvo" onClick={()=>handleSignout()}>SignOut</Text>
               </HStack>
-              <Box w="100%" h="60vh" boxShadow="dark-lg" rounded="30px" isplay="flex">
-              <Box  display="flex" justifyContent="flex" alignItems="flex">
-                <Text fontFamily="Arvo">User Id :</Text>
+              <Box w="100%" h="60vh" boxShadow="dark-lg" rounded="30px" display="flex">
+              <Box display="flex" justifyContent="center" h="30vh"  w="full" alignItems="center" bgColor="yellow.400" rounded="30px">
+              <VStack display="block" >
+                <Box fontFamily="Arvo" color="white">User Id :{user._id}</Box>
+                <Box fontFamily="Arvo" color="white">Name:{user.name}</Box>
+                <Box fontFamily="Arvo" color="white">Email:{user.email}</Box>
+              </VStack>
               </Box>
               </Box>
-            </VStack>
-          </Box>
+            </VStack> 
+          </Box> 
         </Box>
       </VStack>
     </>

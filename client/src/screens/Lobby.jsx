@@ -30,24 +30,24 @@ const LobbyScreen = () => {
  console.log(user)
  
   
-
-  useEffect(() => {
-   if(user){
+ 
+ useEffect(() => {
+  if(user){
     navigate("/home")
-   }else{
+  }else{
     navigate("/")
-   }
-  }, [navigate]);
-  
+  }
+
+}, []);
 
   const handleSubmitForm = useCallback(() => {
     socket.emit("room:join", { email, room ,name});
-  }, [email, room, socket,name]);
+  }, []);
 
   const handleJoinRoom = useCallback(
-    async(data) => {
-      const { email, room ,name} = data;
-      console.log(name)
+    async() => {
+     
+    console.log(email,name)
       try{
       const user= await axios.post("http://localhost:8000/api/use/",{email,name})
       console.log(user.data)  
@@ -59,10 +59,10 @@ const LobbyScreen = () => {
         position: "bottom",
        }) 
      
-     localStorage.setItem("userInfo", JSON.stringify(user.data)); 
-      
+        await localStorage.setItem("userInfo", JSON.stringify(user.data)); 
+        handleSubmitForm(user.data)
      navigate(`/home`);
-
+   
       }catch(error){
         toast({
           title:"User Not Register",
@@ -75,16 +75,19 @@ const LobbyScreen = () => {
          console.log(error)
       }
      
-    },
-    [navigate]
+    }, 
+    [email, room, socket,name]
   );
+ 
+   
 
-  useEffect(() => {
-    socket.on("room:join", handleJoinRoom);
-    return () => {
-      socket.off("room:join", handleJoinRoom);
-    };
-  }, [socket, handleJoinRoom]);
+
+  // useEffect(() => {
+  //   socket.on("room:join", handleJoinRoom);
+  //   return () => {
+  //     socket.off("room:join", handleJoinRoom);
+  //   };
+  // }, [socket, handleJoinRoom]); 
 
   return (
     <>
@@ -177,7 +180,7 @@ const LobbyScreen = () => {
                 backgroundColor="green"
                 width="100%"
                 onClick={() => {
-                  handleSubmitForm();
+                  handleJoinRoom();
                 }}
               >
                 Join

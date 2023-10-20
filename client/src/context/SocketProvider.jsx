@@ -12,17 +12,24 @@ export const useSocket = () => {
 };
 
 export const SocketProvider = (props) => {
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(null);
   const navigate=useNavigate()
-
+  console.log(user) 
   useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    setUser(userInfo);
+    async function fetchUserData() {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+      setUser(userInfo);
+    }
 
-  
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchUserData();
   }, []);
   const socket = useMemo(() => io("http://localhost:8000"), []);
+  if (!user) { 
+    return <div>Loading...</div>;
+  }
+
+console.log("after")
+  
 
   return (
     <SocketContext.Provider value={{socket, user}}>
