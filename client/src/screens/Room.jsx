@@ -47,15 +47,15 @@ const RoomPage = () => {
 
 
   useEffect(() => {
-   
     
-    if (user) {
-      navigate("/room/1")
-     
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+   if(userInfo){
+   
+   }else{
+    navigate("/")
+   }
+ 
+}, []);
 
   const handleUserJoined = useCallback(({ email, id }) => {
     console.log(`Email ${email} joined room`);   

@@ -23,30 +23,38 @@ const LobbyScreen = () => {
   const [email, setEmail] = useState("");
   const [room, setRoom] = useState("");
   const [name,setName]=useState("")
-  
+  const [loading,setLoading]=useState(false)
+
+
+
   const {socket,user} = useSocket();
   const navigate = useNavigate();
   const toast = useToast();
- console.log(user)
  
-  
  
- useEffect(() => {
-  if(user){
+  useEffect(() => {
+    
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+   if(userInfo){
     navigate("/home")
-  }else{
+   }else{
     navigate("/")
-  }
-
+   }
+ 
 }, []);
+ 
+ 
 
   const handleSubmitForm = useCallback(() => {
+    
     socket.emit("room:join", { email, room ,name});
   }, []);
 
   const handleJoinRoom = useCallback(
+
+
     async() => {
-     
+     setLoading(true)
     console.log(email,name)
       try{
       const user= await axios.post("http://localhost:8000/api/use/",{email,name})
@@ -59,10 +67,19 @@ const LobbyScreen = () => {
         position: "bottom",
        }) 
      
-        await localStorage.setItem("userInfo", JSON.stringify(user.data)); 
+        localStorage.setItem("userInfo", JSON.stringify(user.data)); 
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        console.log(userInfo)
         handleSubmitForm(user.data)
-     navigate(`/home`);
-   
+       
+         setLoading(false)
+         navigate(`/home`);
+        
+      
+     
+
+  
+    
       }catch(error){
         toast({
           title:"User Not Register",
@@ -72,7 +89,7 @@ const LobbyScreen = () => {
           isClosable: true,
           position: "bottom",
          })
-         console.log(error)
+        setLoading(false)
       }
      
     }, 
@@ -182,6 +199,7 @@ const LobbyScreen = () => {
                 onClick={() => {
                   handleJoinRoom();
                 }}
+                isLoading={loading} 
               >
                 Join
               </Button>

@@ -6,34 +6,37 @@ import { useNavigate } from "react-router-dom";
 
 const SocketContext = createContext(null);
 
-export const useSocket = () => { 
-  const socket = useContext(SocketContext);
-  return socket;
-};
+
 
 export const SocketProvider = (props) => {
   const [user, setUser] = useState(null);
   const navigate=useNavigate()
   console.log(user) 
   useEffect(() => {
-    async function fetchUserData() {
-      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    
+      const userInfo =JSON.parse(localStorage.getItem('userInfo'));
+      console.log("before useEffect")
       setUser(userInfo);
-    }
-
-    fetchUserData();
+   
+     console.log(user)
+   
   }, []);
-  const socket = useMemo(() => io("http://localhost:8000"), []);
-  if (!user) { 
-    return <div>Loading...</div>;
-  }
-
-console.log("after")
   
+  console.log("27 ")
+  
+  const socket = useMemo(() => io("http://localhost:8000"), []);
+ 
+
+
+ 
 
   return (
     <SocketContext.Provider value={{socket, user}}>
       {props.children}
     </SocketContext.Provider>
   );
+};
+export const useSocket = () => { 
+  const socket = useContext(SocketContext);
+  return socket;
 };
