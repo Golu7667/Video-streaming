@@ -55,7 +55,7 @@ const HomePage = () => {
   console.log(data);
   console.log(login);
   const handeluser = async () => {
-    const allusers = await axios.get("http://localhost:8000/api/use/users");
+    const allusers = await axios.get("https://videocall-ddov.onrender.com/api/use/users");
     const userdata = allusers.data;
     setData(userdata);
   };
