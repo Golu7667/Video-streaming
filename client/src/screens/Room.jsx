@@ -27,8 +27,8 @@ import { useNavigate } from "react-router-dom";
 
 
 
-const RoomPage = () => {
-  const {socket,user} = useSocket();
+const RoomPage = (props) => {
+  const {socket,user,remoteuser} = useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
@@ -39,12 +39,13 @@ const RoomPage = () => {
   const [remoteAudioStatus,setremoteAudioStatus]=useState('silent')
   const [remoteMute,setRemoteMute]=useState(false)
   const navigate=useNavigate()
-
+ 
+  console.log(remoteuser) 
  
 
   console.log(remoteSocketId);
   
-
+  
 
   useEffect(() => {
     
@@ -71,81 +72,95 @@ const RoomPage = () => {
     setRemoteMute(!remoteMute)
    }
 
-  const handleCallUser = useCallback(async () => {
-
-    
-   
-    const stream = await navigator.mediaDevices.getUserMedia({
+   const handleCallUser = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      });
+      const offer = await peer.getOffer();
+      socket.emit("user:call", { to: remoteSocketId, offer });
      
-      video: true,
-      
-    });
-    const offer = await peer.getOffer();
-    socket.emit("user:call", { to: remoteSocketId, offer });
-   
-    setMyStream(stream);
-    setCallButton(true);
-  }, [remoteSocketId, socket,setMyStream]);
-
+      setMyStream(stream);
+      setCallButton(true);
+    } catch (error) {
+      if (error.name === 'NotAllowedError') {
+        // The user denied camera or microphone access
+        window.alert('This is a simple alert message.');
+       
+        // You can show a message to the user or handle this case as needed
+      } else if (error.name === 'NotFoundError') {
+        // The requested device is not found
+        window.alert('Requested camera or microphone not found');
+       
+        // You can show a message to the user or handle this case as needed
+      } else {
+        // Handle other errors as needed
+        window.alert('Error accessing camera and microphone:', error);
+        
+      }
+    }
+  }, [remoteSocketId, socket, setMyStream, setCallButton]);
+  
  
 
-  useEffect(() => {
-    console.log(callButton)
+  // useEffect(() => {
+  //   console.log(callButton)
     
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-   console.log("audio working in useEffect")
-    const analyzeAudio = async () => {
-      try {
+  //   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  //  console.log("audio working in useEffect")
+  //   const analyzeAudio = async () => {
+  //     try {
       
-        const stream1 = await navigator.mediaDevices.getUserMedia({ audio: !mute && callButton ? true: false});
+  //       const stream1 = await navigator.mediaDevices.getUserMedia({ audio: !mute && callButton ? true: false});
 
-        // Create an audio source node from the stream
-        const audioSource = audioContext.createMediaStreamSource(stream1);
+  //       // Create an audio source node from the stream
+  //       const audioSource = audioContext.createMediaStreamSource(stream1);
 
-        // Create an analyzer node to process the audio
-        const analyzer = audioContext.createAnalyser();
-        analyzer.fftSize = 256;
+  //       // Create an analyzer node to process the audio
+  //       const analyzer = audioContext.createAnalyser();
+  //       analyzer.fftSize = 256;
 
-        // Connect the audio source to the analyzer
-        audioSource.connect(analyzer);
+  //       // Connect the audio source to the analyzer
+  //       audioSource.connect(analyzer);
 
-        const dataArray = new Uint8Array(analyzer.frequencyBinCount);
+  //       const dataArray = new Uint8Array(analyzer.frequencyBinCount);
 
-        // Function to continuously check audio volume and update status
-        const checkAudioVolume = () => {
-          analyzer.getByteFrequencyData(dataArray);
-          const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
+  //       // Function to continuously check audio volume and update status
+  //       const checkAudioVolume = () => {
+  //         analyzer.getByteFrequencyData(dataArray);
+  //         const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
 
-          // Adjust the threshold based on your environment
-          const threshold = 30;
+  //         // Adjust the threshold based on your environment
+  //         const threshold = 30;
 
-          if (average > threshold) {
-            setAudioStatus('speaking');
-          } else {
-            setAudioStatus('silent');
-          }
-          requestAnimationFrame(checkAudioVolume); // Continuously update status
-        };
+  //         if (average > threshold) {
+  //           setAudioStatus('speaking');
+  //         } else {
+  //           setAudioStatus('silent');
+  //         }
+  //         requestAnimationFrame(checkAudioVolume); // Continuously update status
+  //       };
 
-        // Start analyzing audio
-        audioContext.resume().then(() => {
-          // analyzer.connect(audioContext.destination);
-          checkAudioVolume();
-        });
-      } catch (error) {
-        console.error('Error accessing audio:', error);
-        setAudioStatus('error');
-      }
-    };
+  //       // Start analyzing audio
+  //       audioContext.resume().then(() => {
+  //         // analyzer.connect(audioContext.destination);
+  //         checkAudioVolume();
+  //       });
+  //     } catch (error) {
+  //       console.error('Error accessing audio:', error);
+  //       setAudioStatus('error');
+  //     }
+  //   };
 
-    // Initialize audio analysis
-    analyzeAudio();
+  //   // Initialize audio analysis
+  //   analyzeAudio();
 
-    return () => {
-      audioContext.close();
-    };
+  //   return () => {
+  //     audioContext.close();
+  //   };
   
-  }, []);
+  // }, []);
  
   // useEffect(() => {
   //   const audioContext = new (window.AudioContext || window.webkitAudioContext)();

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback } from "react";
 import {
   Box,
   Center,
@@ -18,19 +18,29 @@ import { CiMicrophoneOn, CiMicrophoneOff } from "react-icons/ci";
 import { FiPhone } from "react-icons/fi";
 import { useSocket } from "../context/SocketProvider";
 import { VscAccount } from "react-icons/vsc";
-
-
+import RoomPage from "./Room";
+import { Routes, Route } from "react-router-dom";
 
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [login, setLogin] = useState();
- const {user}=useSocket()
+ const {user,setRemoteUser,socket}=useSocket()
   
+
+
+ const handleSubmitForm = useCallback(() => {
+ 
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  console.log(userInfo)
+  socket.emit("room:join", { email: userInfo.email, room: 1, name: userInfo.name });
+}, []);
+
   useEffect(() => {
     
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    setLogin(userInfo)
    if(userInfo){
     navigate("/home")
    }else{
@@ -50,10 +60,13 @@ const HomePage = () => {
     setData(userdata);
   };
 
-  const handleselect = (user) => {
-      
-   
-    console.log(user);
+  const handleselect = (remoteuser) => {
+      console.log("handleselect")
+     
+      setRemoteUser(remoteuser)
+      handleSubmitForm()
+      navigate("/room/1")
+     
   };
   const handleSignout = () => {
     console.log("logout");
@@ -177,7 +190,7 @@ const HomePage = () => {
                 display="flex"
                
               >{
-                !user ?  <Skeleton height='20px' />:
+                !login ?  <Skeleton height='20px' />:
 
                 <VStack w="100%" h="69vh"  gap="0px">
                   <Box
@@ -191,13 +204,13 @@ const HomePage = () => {
                   >
                     <VStack display="block">
                       <Box fontFamily="Arvo" color="white">
-                        User Id :{user._id}
+                        User Id :{login._id}
                       </Box>
                       <Box fontFamily="Arvo" color="white">
-                        Name:{user.name}
+                        Name:{login.name}
                       </Box>
                       <Box fontFamily="Arvo" color="white">
-                        Email:{user.email}
+                        Email:{login.email}
                       </Box>
                     </VStack>
                   </Box>

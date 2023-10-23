@@ -45,10 +45,7 @@ const LobbyScreen = () => {
  
  
 
-  const handleSubmitForm = useCallback(() => {
-    
-    socket.emit("room:join", { email, room ,name});
-  }, []);
+  
 
   const handleJoinRoom = useCallback(
 
@@ -70,7 +67,7 @@ const LobbyScreen = () => {
         localStorage.setItem("userInfo", JSON.stringify(user.data)); 
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         console.log(userInfo)
-        handleSubmitForm(user.data)
+       
        
          setLoading(false)
          navigate(`/home`);

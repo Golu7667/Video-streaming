@@ -10,6 +10,7 @@ const SocketContext = createContext(null);
 
 export const SocketProvider = (props) => {
   const [user, setUser] = useState(null);
+  const [remoteuser,setRemoteUser]=useState(null)
   const navigate=useNavigate()
   console.log(user) 
   useEffect(() => {
@@ -31,7 +32,7 @@ export const SocketProvider = (props) => {
  
 
   return (
-    <SocketContext.Provider value={{socket, user}}>
+    <SocketContext.Provider value={{socket, user,remoteuser,setRemoteUser}}>
       {props.children}
     </SocketContext.Provider>
   );
