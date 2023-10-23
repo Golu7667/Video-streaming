@@ -25,7 +25,7 @@ export const SocketProvider = (props) => {
   
   console.log("27 ")
   
-  const socket = useMemo(() => io("http://localhost:8000"), []);
+  const socket = useMemo(() => io("https://videocall-ddov.onrender.com"), []);
  
 
 
