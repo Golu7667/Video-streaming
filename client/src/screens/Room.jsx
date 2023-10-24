@@ -118,7 +118,7 @@ const RoomPage = (props) => {
 
         // Start analyzing audio
         audioContext.resume().then(() => {
-          // analyzer.connect(audioContext.destination);
+          analyzer.connect(audioContext.destination);
           checkAudioVolume();
         })
       setMyStream(stream);
