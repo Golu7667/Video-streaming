@@ -33,11 +33,12 @@ const RoomPage = (props) => {
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
   const [callButton, setCallButton] = useState(false);
-  const [audio,setAudio]=useState(false)
+  const [audio,setAudio]=useState()
   const [audioStatus, setAudioStatus] = useState('silent');
   const [mute,setMute]=useState(false)
   const [remoteAudioStatus,setremoteAudioStatus]=useState('silent')
   const [remoteMute,setRemoteMute]=useState(false)
+  const [remoteAudio,setRemoteAudio]=useState()
   const navigate=useNavigate()
  
   console.log(remoteuser) 
@@ -80,7 +81,46 @@ const RoomPage = (props) => {
       });
       const offer = await peer.getOffer();
       socket.emit("user:call", { to: remoteSocketId, offer });
-     
+
+
+
+
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+       const stream1 = await navigator.mediaDevices.getUserMedia({ audio: true});
+
+        // Create an audio source node from the stream
+        const audioSource = audioContext.createMediaStreamSource(stream1);
+
+        // Create an analyzer node to process the audio
+        const analyzer = audioContext.createAnalyser();
+        analyzer.fftSize = 256;
+
+        // Connect the audio source to the analyzer
+        audioSource.connect(analyzer);
+
+        const dataArray = new Uint8Array(analyzer.frequencyBinCount);
+
+        // Function to continuously check audio volume and update status
+        const checkAudioVolume = () => {
+          analyzer.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
+
+          // Adjust the threshold based on your environment
+          const threshold = 30;
+            console.log("handleCallUser")
+          if (average > threshold) {
+            setAudioStatus('speaking');
+          } else {
+            setAudioStatus('silent');
+          }
+          requestAnimationFrame(checkAudioVolume); // Continuously update status
+        };
+
+        // Start analyzing audio
+        audioContext.resume().then(() => {
+          // analyzer.connect(audioContext.destination);
+          checkAudioVolume();
+        })
       setMyStream(stream);
       setCallButton(true);
     } catch (error) {
@@ -112,7 +152,7 @@ const RoomPage = (props) => {
   //   const analyzeAudio = async () => {
   //     try {
       
-  //       const stream1 = await navigator.mediaDevices.getUserMedia({ audio: !mute && callButton ? true: false});
+  //       const stream1 = await navigator.mediaDevices.getUserMedia({ audio: true});
 
   //       // Create an audio source node from the stream
   //       const audioSource = audioContext.createMediaStreamSource(stream1);
