@@ -54,7 +54,7 @@ const LobbyScreen = () => {
      setLoading(true)
     console.log(email,name)
       try{
-      const user= await axios.post("https://videocall-ddov.onrender.com/api/use/",{email,name})
+      const user= await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/use/`,{email,name})
       console.log(user.data)  
        toast({
         title:"User Join",

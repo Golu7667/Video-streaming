@@ -29,7 +29,7 @@ const HomePage = () => {
  const {user,setRemoteUser,socket}=useSocket()
   
 
-
+console.log(setRemoteUser)
  const handleSubmitForm = useCallback(() => {
  
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -55,10 +55,20 @@ const HomePage = () => {
   console.log(data);
   console.log(login);
   const handeluser = async () => {
-    const allusers = await axios.get("https://videocall-ddov.onrender.com/api/use/users");
+    const allusers = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/use/users`);
     const userdata = allusers.data;
     setData(userdata);
   };
+
+  const handleIncommingCall = useCallback(
+    async ({ from, offer }) => {
+     console.log(from,offer)
+     
+      
+     
+    },
+    [socket]
+  );
 
   const handleselect = (remoteuser) => {
       console.log("handleselect")

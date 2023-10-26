@@ -25,7 +25,7 @@ export const SocketProvider = (props) => {
   
   console.log("27 ")
   
-  const socket = useMemo(() => io("https://videocall-ddov.onrender.com"), []);
+  const socket = useMemo(() => io(process.env.REACT_APP_BACKEND_URL), []);
  
 
 

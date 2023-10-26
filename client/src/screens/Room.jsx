@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback, useState, useRef  } from "react";
 import ReactPlayer from "react-player";
 import peer from "../service/peer";
 import { useSocket } from "../context/SocketProvider";
@@ -40,7 +40,8 @@ const RoomPage = (props) => {
   const [remoteMute,setRemoteMute]=useState(false)
   const [remoteAudio,setRemoteAudio]=useState()
   const navigate=useNavigate()
- 
+  const audioRef = useRef(null);
+  const audioRemoteRef=useRef(null)
   console.log(remoteuser) 
  
 
@@ -81,46 +82,8 @@ const RoomPage = (props) => {
       });
       const offer = await peer.getOffer();
       socket.emit("user:call", { to: remoteSocketId, offer });
-
-
-
-
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-       const stream1 = await navigator.mediaDevices.getUserMedia({ audio: true});
-
-        // Create an audio source node from the stream
-        const audioSource = audioContext.createMediaStreamSource(stream1);
-
-        // Create an analyzer node to process the audio
-        const analyzer = audioContext.createAnalyser();
-        analyzer.fftSize = 256;
-
-        // Connect the audio source to the analyzer
-        audioSource.connect(analyzer);
-
-        const dataArray = new Uint8Array(analyzer.frequencyBinCount);
-
-        // Function to continuously check audio volume and update status
-        const checkAudioVolume = () => {
-          analyzer.getByteFrequencyData(dataArray);
-          const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
-
-          // Adjust the threshold based on your environment
-          const threshold = 30;
-            console.log("handleCallUser")
-          if (average > threshold) {
-            setAudioStatus('speaking');
-          } else {
-            setAudioStatus('silent');
-          }
-          requestAnimationFrame(checkAudioVolume); // Continuously update status
-        };
-
-        // Start analyzing audio
-        audioContext.resume().then(() => {
-          analyzer.connect(audioContext.destination);
-          checkAudioVolume();
-        })
+     
+     
       setMyStream(stream);
       setCallButton(true);
     } catch (error) {
@@ -142,7 +105,25 @@ const RoomPage = (props) => {
     }
   }, [remoteSocketId, socket, setMyStream, setCallButton]);
   
- 
+  useEffect(() => {
+    // When the component mounts, set the audio source to the remote stream and play it
+    if (myStream && audioRef.current) {
+      audioRef.current.srcObject = myStream;
+      audioRef.current.play().catch((error) => {
+        console.error("Error playing audio:", error);
+      });
+    }
+  }, [myStream]);
+
+  useEffect(() => {
+    // When the component mounts, set the audio source to the remote stream and play it
+    if (remoteStream && audioRef.current) {
+      audioRef.current.srcObject = remoteStream;
+      audioRef.current.play().catch((error) => {
+        console.error("Error playing audio:", error);
+      });
+    }
+  }, [myStream]);
 
   // useEffect(() => {
   //   console.log(callButton)
@@ -398,6 +379,7 @@ const RoomPage = (props) => {
                   url={myStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
+                  <audio ref={audioRef} controls autoPlay />
                  <Box width="100px"  height="40px"  bgColor="green.100" borderRadius="10px">
                  <HStack>{
                   mute? <CiMicrophoneOff  style={{ fontSize: '2em' }}  onClick={handelmute}/> :
@@ -455,6 +437,8 @@ const RoomPage = (props) => {
                   url={remoteStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
+                   <audio ref={audioRemoteRef} controls autoPlay />
+               
                 <Box width="100px"  height="40px"  bgColor="green.100" borderRadius="10px">
                  <HStack>{
                   remoteMute? <CiMicrophoneOff  style={{ fontSize: '2em' }}  onClick={handelremotemute}/> :
