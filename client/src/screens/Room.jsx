@@ -33,19 +33,9 @@ const RoomPage = (props) => {
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
   const [callButton, setCallButton] = useState(false);
-  const [audio,setAudio]=useState()
-  const [audioStatus, setAudioStatus] = useState('silent');
-  const [mute,setMute]=useState(false)
-  const [remoteAudioStatus,setremoteAudioStatus]=useState('silent')
-  const [remoteMute,setRemoteMute]=useState(false)
-  const [remoteAudio,setRemoteAudio]=useState()
   const navigate=useNavigate()
-  const audioRef = useRef(null);
-  const audioRemoteRef=useRef(null)
-  console.log(remoteuser) 
- 
 
-  console.log(remoteSocketId);
+  
   
   
 
@@ -64,15 +54,6 @@ const RoomPage = (props) => {
     console.log(`Email ${email} joined room`);   
     setRemoteSocketId(id);
   }, []);
- 
-   const handelmute=()=>{
-    console.log("handlemute working")
-    setMute(!mute)
-   }
-  
-   const handelremotemute=()=>{
-    setRemoteMute(!remoteMute)
-   }
 
    const handleCallUser = useCallback(async () => {
     try {
@@ -105,140 +86,7 @@ const RoomPage = (props) => {
     }
   }, [remoteSocketId, socket, setMyStream, setCallButton]);
   
-  useEffect(() => {
-    // When the component mounts, set the audio source to the remote stream and play it
-    if (myStream && audioRef.current) {
-      audioRef.current.srcObject = myStream;
-      audioRef.current.play().catch((error) => {
-        console.error("Error playing audio:", error);
-      });
-    }
-  }, [myStream]);
-
-  useEffect(() => {
-    // When the component mounts, set the audio source to the remote stream and play it
-    if (remoteStream && audioRef.current) {
-      audioRef.current.srcObject = remoteStream;
-      audioRef.current.play().catch((error) => {
-        console.error("Error playing audio:", error);
-      });
-    }
-  }, [myStream]);
-
-  // useEffect(() => {
-  //   console.log(callButton)
-    
-  //   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  //  console.log("audio working in useEffect")
-  //   const analyzeAudio = async () => {
-  //     try {
-      
-  //       const stream1 = await navigator.mediaDevices.getUserMedia({ audio: true});
-
-  //       // Create an audio source node from the stream
-  //       const audioSource = audioContext.createMediaStreamSource(stream1);
-
-  //       // Create an analyzer node to process the audio
-  //       const analyzer = audioContext.createAnalyser();
-  //       analyzer.fftSize = 256;
-
-  //       // Connect the audio source to the analyzer
-  //       audioSource.connect(analyzer);
-
-  //       const dataArray = new Uint8Array(analyzer.frequencyBinCount);
-
-  //       // Function to continuously check audio volume and update status
-  //       const checkAudioVolume = () => {
-  //         analyzer.getByteFrequencyData(dataArray);
-  //         const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
-
-  //         // Adjust the threshold based on your environment
-  //         const threshold = 30;
-
-  //         if (average > threshold) {
-  //           setAudioStatus('speaking');
-  //         } else {
-  //           setAudioStatus('silent');
-  //         }
-  //         requestAnimationFrame(checkAudioVolume); // Continuously update status
-  //       };
-
-  //       // Start analyzing audio
-  //       audioContext.resume().then(() => {
-  //         // analyzer.connect(audioContext.destination);
-  //         checkAudioVolume();
-  //       });
-  //     } catch (error) {
-  //       console.error('Error accessing audio:', error);
-  //       setAudioStatus('error');
-  //     }
-  //   };
-
-  //   // Initialize audio analysis
-  //   analyzeAudio();
-
-  //   return () => {
-  //     audioContext.close();
-  //   };
-  
-  // }, []);
  
-  // useEffect(() => {
-  //   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-  //   const analyzeAudio = async () => {
-  //     try {
-  //       const stream1 = await navigator.mediaDevices.getUserMedia({ audio: !remoteMute ? true: false});
-
-  //       // Create an audio source node from the stream
-  //       const audioSource = audioContext.createMediaStreamSource(stream1);
-
-  //       // Create an analyzer node to process the audio
-  //       const analyzer = audioContext.createAnalyser();
-  //       analyzer.fftSize = 256;
-
-  //       // Connect the audio source to the analyzer
-  //       audioSource.connect(analyzer);
-
-  //       const dataArray = new Uint8Array(analyzer.frequencyBinCount);
-
-  //       // Function to continuously check audio volume and update status
-  //       const checkAudioVolume = () => {
-  //         // analyzer.getByteFrequencyData(dataArray);
-  //         const average = dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
-
-  //         // Adjust the threshold based on your environment
-  //         const threshold = 30;
-
-  //         if (average > threshold) {
-  //           setremoteAudioStatus('speaking');
-  //         } else {
-  //           setremoteAudioStatus('silent');
-  //         }
-  //         requestAnimationFrame(checkAudioVolume); // Continuously update status
-  //       };
-
-  //       // Start analyzing audio
-  //       audioContext.resume().then(() => {
-  //         analyzer.connect(audioContext.destination);
-  //         checkAudioVolume();
-  //       });
-  //     } catch (error) {
-  //       console.error('Error accessing audio:', error);
-  //       setremoteAudioStatus('error');
-  //     }
-  //   };
-
-  //   // Initialize audio analysis
-  //   analyzeAudio();
-
-  //   return () => {
-  //     audioContext.close();
-  //   };
-  // }, [remoteMute]);
-
-
-
 
 
 
@@ -374,22 +222,13 @@ const RoomPage = (props) => {
                 <ReactPlayer
                   playing
                  
-                  height="400px"
+                  height="460px"
                   width="100%"
                   url={myStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
                 
-                 <Box width="100px"  height="40px"  bgColor="green.100" borderRadius="10px">
-                 <HStack>{
-                  mute? <CiMicrophoneOff  style={{ fontSize: '2em' }}  onClick={handelmute}/> :
-                <CiMicrophoneOn style={{ fontSize: '2em' }} onClick={handelmute}/>
-                 }
-                 {audioStatus!=="silent" && mute == false ? <Img src={waveAudio} width="40px"/>   
-                 :mute==true ?<Text fontFamily="Arvo" color="green"  width="50px" height="20px">Mute</Text> :<Text width="40px" height="40px">.</Text>
-                 }
-                 </HStack>
-                 </Box> 
+                
                
               </VStack>
 
@@ -432,23 +271,12 @@ const RoomPage = (props) => {
                 <ReactPlayer
                   playing
                
-                  height="400px"
+                  height="460px"
                   width="100%"
                   url={remoteStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
                    
-               
-                <Box width="100px"  height="40px"  bgColor="green.100" borderRadius="10px">
-                 <HStack>{
-                  remoteMute? <CiMicrophoneOff  style={{ fontSize: '2em' }}  onClick={handelremotemute}/> :
-                <CiMicrophoneOn style={{ fontSize: '2em' }} onClick={handelremotemute}/>
-                 }
-                 {remoteAudioStatus!=="silent" && remoteMute == false ? <Img src={waveAudio} width="40px"/>   
-                 :remoteMute==true ?<Text fontFamily="Arvo" color="green"  width="50px" height="20px">Mute</Text> :<Text width="40px" height="40px">.</Text>
-                 }
-                 </HStack>
-                 </Box> 
                
               </VStack>
             )}
