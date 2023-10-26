@@ -373,13 +373,13 @@ const RoomPage = (props) => {
               <VStack>
                 <ReactPlayer
                   playing
-                  muted
+                 
                   height="400px"
                   width="100%"
                   url={myStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
-                  <audio ref={audioRef} controls autoPlay />
+                
                  <Box width="100px"  height="40px"  bgColor="green.100" borderRadius="10px">
                  <HStack>{
                   mute? <CiMicrophoneOff  style={{ fontSize: '2em' }}  onClick={handelmute}/> :
@@ -431,13 +431,13 @@ const RoomPage = (props) => {
               <VStack>
                 <ReactPlayer
                   playing
-                  muted
+               
                   height="400px"
                   width="100%"
                   url={remoteStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
-                   <audio ref={audioRemoteRef} controls autoPlay />
+                   
                
                 <Box width="100px"  height="40px"  bgColor="green.100" borderRadius="10px">
                  <HStack>{
