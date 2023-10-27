@@ -28,8 +28,8 @@ import { useNavigate } from "react-router-dom";
 
 
 const RoomPage = (props) => {
-  const {socket,user,remoteuser} = useSocket();
-  const [remoteSocketId, setRemoteSocketId] = useState(null);
+  const {socket,user,remoteuser,setRemoteUser} = useSocket();
+ 
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
   const [callButton, setCallButton] = useState(false);
@@ -50,10 +50,7 @@ const RoomPage = (props) => {
  
 }, []);
 
-  const handleUserJoined = useCallback(({ email, id }) => {
-    console.log(`Email ${email} joined room`);   
-    setRemoteSocketId(id);
-  }, []);
+  
 
    const handleCallUser = useCallback(async () => {
     try {
@@ -62,7 +59,7 @@ const RoomPage = (props) => {
         audio: true
       });
       const offer = await peer.getOffer();
-      socket.emit("user:call", { to: remoteSocketId, offer });
+      socket.emit("user:call", { to: remoteuser, offer });
      
      
       setMyStream(stream);
@@ -84,7 +81,7 @@ const RoomPage = (props) => {
         
       }
     }
-  }, [remoteSocketId, socket, setMyStream, setCallButton]);
+  }, [remoteuser, socket, setMyStream, setCallButton]);
   
  
 
@@ -95,7 +92,8 @@ const RoomPage = (props) => {
 
   const handleIncommingCall = useCallback(
     async ({ from, offer }) => {
-      setRemoteSocketId(from);
+      console.log(from,offer)
+      setRemoteUser(from);
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: true,
@@ -125,8 +123,8 @@ const RoomPage = (props) => {
 
   const handleNegoNeeded = useCallback(async () => {
     const offer = await peer.getOffer();
-    socket.emit("peer:nego:needed", { offer, to: remoteSocketId });
-  }, [remoteSocketId, socket]);
+    socket.emit("peer:nego:needed", { offer, to: remoteuser });
+  }, [remoteuser, socket]);
 
   useEffect(() => {
     peer.peer.addEventListener("negotiationneeded", handleNegoNeeded);
@@ -148,7 +146,7 @@ const RoomPage = (props) => {
   }, []);
 
   const handleDisconnect = () => {
-    socket.emit("call:disconnect", { to: remoteSocketId });
+    socket.emit("call:disconnect", { to: remoteuser });
 
     if (myStream) {
       myStream.getTracks().forEach((track) => {
@@ -169,14 +167,14 @@ const RoomPage = (props) => {
   }, [setRemoteStream]);
 
   useEffect(() => {
-    socket.on("user:joined", handleUserJoined);
+   
     socket.on("incomming:call", handleIncommingCall);
     socket.on("call:accepted", handleCallAccepted);
     socket.on("peer:nego:needed", handleNegoNeedIncomming);
     socket.on("peer:nego:final", handleNegoNeedFinal);
     socket.on("call:disconnect", handleDisconnect);
     return () => {
-      socket.off("user:joined", handleUserJoined);
+     
       socket.off("incomming:call", handleIncommingCall);
       socket.off("call:accepted", handleCallAccepted);
       socket.off("peer:nego:needed", handleNegoNeedIncomming);
@@ -185,7 +183,7 @@ const RoomPage = (props) => {
     };
   }, [
     socket,
-    handleUserJoined,
+   
     handleIncommingCall,
     handleCallAccepted,
     handleNegoNeedIncomming,
@@ -202,7 +200,7 @@ const RoomPage = (props) => {
             <Img  src={video} w="40px"/> 
             <Heading fontFamily="Arvo">Video Call</Heading>
             </HStack>
-            <Text fontFamily="Arvo">{remoteSocketId ? "Connected" : "No one in room"}</Text>
+            <Text fontFamily="Arvo">{remoteuser ? "Connected" : "No one in room"}</Text>
           </VStack>
         </Center>
       </VStack>
@@ -301,7 +299,7 @@ const RoomPage = (props) => {
         </Box>
       </Box>
        <Center >
-      {remoteSocketId && (
+      {remoteuser && (
         <Button
           variant="solid"
           colorScheme="red"

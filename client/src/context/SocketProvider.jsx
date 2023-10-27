@@ -11,28 +11,32 @@ const SocketContext = createContext(null);
 export const SocketProvider = (props) => {
   const [user, setUser] = useState(null);
   const [remoteuser,setRemoteUser]=useState(null)
+  const [logout,setLogout]=useState(false)
   const navigate=useNavigate()
+ 
   console.log(user) 
   useEffect(() => {
-    
+    function afterUserStateUpdate(){
       const userInfo =JSON.parse(localStorage.getItem('userInfo'));
       console.log("before useEffect")
       setUser(userInfo);
-   
+     
      console.log(user)
-   
-  }, []);
+    }
+    afterUserStateUpdate();
+  }, [navigate]);
   
   console.log("27 ")
   
+  
   const socket = useMemo(() => io(process.env.REACT_APP_BACKEND_URL), []);
  
-
+  
 
  
 
   return (
-    <SocketContext.Provider value={{socket, user,remoteuser,setRemoteUser}}>
+    <SocketContext.Provider value={{socket, user,remoteuser,setRemoteUser,setLogout}}>
       {props.children}
     </SocketContext.Provider>
   );

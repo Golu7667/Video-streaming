@@ -26,15 +26,31 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [login, setLogin] = useState();
- const {user,setRemoteUser,socket}=useSocket()
-  
+  const [remoteSocketId, setRemoteSocketId] = useState(null);
 
-console.log(setRemoteUser)
+ const {user,setRemoteUser,socket,remoteuser,setLogout}=useSocket()
+ 
+  console.log(remoteSocketId)
+
+  
+  useEffect(()=>{
+    const userInfo =JSON.parse(localStorage.getItem('userInfo'));
+     setLogin(userInfo)
+  })
+console.log(login)
+ const handleJoinRoom = useCallback((login) => {
+  console.log("handle Room join")
+  socket.emit("room:join", { email: login.email, room: 1, name:login.name });
+}, [user]);
+
+
+
+console.log(remoteuser)
  const handleSubmitForm = useCallback(() => {
  
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
   console.log(userInfo)
-  socket.emit("room:join", { email: userInfo.email, room: 1, name: userInfo.name });
+ 
 }, []);
 
   useEffect(() => {
@@ -42,6 +58,7 @@ console.log(setRemoteUser)
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     setLogin(userInfo)
    if(userInfo){
+   
     navigate("/home")
    }else{
     navigate("/")
@@ -72,7 +89,7 @@ console.log(setRemoteUser)
 
   const handleselect = (remoteuser) => {
       console.log("handleselect")
-     
+    
       setRemoteUser(remoteuser)
       handleSubmitForm()
       navigate("/room/1")
@@ -81,9 +98,22 @@ console.log(setRemoteUser)
   const handleSignout = () => {
     console.log("logout");
     localStorage.removeItem("userInfo");
+    setLogout(true)
     navigate("/")
    
   };
+
+ 
+
+
+  useEffect(() => {
+    socket.on("room:join", handleJoinRoom(user));
+    // socket.on("user:joined", handleUserJoined);
+    return () => {
+      socket.off("room:join", handleJoinRoom(user));
+      // socket.off("user:joined", handleUserJoined);
+    }
+  },[ socket, handleJoinRoom,user])
 
   return (
     <>
@@ -256,7 +286,7 @@ console.log(setRemoteUser)
                           fontSize="sm"
                           w="100px"
                         >
-                          {user.name}
+                          {remoteSocketId}
                         </Text>
                         <Box w="70%" display="flex" alignItems="center" justifyContent='flex-end'>
                         <Text  color="black"   fontFamily="Cedarville Cursive">user.email</Text>

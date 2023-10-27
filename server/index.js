@@ -11,7 +11,7 @@ const User=require("./models/userModel")
 
 
 connetDatabase()
-app.use(cors({origin:"https://videocall-mauve.vercel.app"}))
+app.use(cors({origin:"http://localhost:3000"}))
 app.use(express.json())
 app.use("/api/use",userRoutes)
 
@@ -28,8 +28,8 @@ app.use("/api/use",userRoutes)
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "https://videocall-mauve.vercel.app",
-    // origin:"http://localhost:3000",
+    // origin: "https://videocall-mauve.vercel.app",
+    origin:"http://localhost:3000",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   },
@@ -46,7 +46,7 @@ io.on("connection", (socket) => {
     console.log(email,room,socket.id)
     emailToSocketIdMap.set(email, socket.id);
     socketidToEmailMap.set(socket.id, email); 
-    io.to(room).emit("user:joined", { email, id: socket.id }); 
+    io.to(room).emit("user:joined", { email, id: socket.id ,name}); 
     socket.join(room);
     const updatedUser = await User.findOneAndUpdate(
       { email: email }, 

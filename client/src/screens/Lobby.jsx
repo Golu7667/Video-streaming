@@ -96,12 +96,7 @@ const LobbyScreen = () => {
    
 
 
-  // useEffect(() => {
-  //   socket.on("room:join", handleJoinRoom);
-  //   return () => {
-  //     socket.off("room:join", handleJoinRoom);
-  //   };
-  // }, [socket, handleJoinRoom]); 
+  
 
   return (
     <>
