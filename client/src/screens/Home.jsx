@@ -29,19 +29,16 @@ const HomePage = () => {
   const [remoteSocketId, setRemoteSocketId] = useState(null);
 
  const {user,setRemoteUser,socket,remoteuser,setLogout}=useSocket()
- 
+  
+
   console.log(remoteSocketId)
 
-  
-  useEffect(()=>{
-    const userInfo =JSON.parse(localStorage.getItem('userInfo'));
-     setLogin(userInfo)
-  })
+
 console.log(login)
- const handleJoinRoom = useCallback((login) => {
+ const handleJoinRoom = (login) => {
   console.log("handle Room join")
   socket.emit("room:join", { email: login.email, room: 1, name:login.name });
-}, [user]);
+}
 
 
 
@@ -106,17 +103,17 @@ console.log(remoteuser)
  
 
 
-  useEffect(() => {
-    socket.on("room:join", handleJoinRoom(user));
-    // socket.on("user:joined", handleUserJoined);
-    return () => {
-      socket.off("room:join", handleJoinRoom(user));
-      // socket.off("user:joined", handleUserJoined);
-    }
-  },[ socket, handleJoinRoom,user])
+  // useEffect(() => {
+  //   socket.on("room:join", handleJoinRoom(user));
+  //   // socket.on("user:joined", handleUserJoined);
+  //   return () => {
+  //     socket.off("room:join", handleJoinRoom(user));
+  //     // socket.off("user:joined", handleUserJoined);
+  //   }
+  // },[ socket, handleJoinRoom,user])
 
   return (
-    <>
+    <> { !user ? <h1>Loading</h1>:
       <VStack>
         <Box
           w={["100%", "100%", "80%"]}
@@ -233,6 +230,7 @@ console.log(remoteuser)
                 !login ?  <Skeleton height='20px' />:
 
                 <VStack w="100%" h="69vh"  gap="0px">
+               
                   <Box
                     w="100%"
                     display="flex"
@@ -260,6 +258,9 @@ console.log(remoteuser)
                       <Text fontFamily="Arvo" color="black" mt="5px">
                       Incoming Call
                       </Text>
+                      <HStack h="100px">  <Text fontFamily="Arvo" color="white">Active Account</Text>
+                      <Button bgColor="blue.400" color="white" onClick={()=>handleJoinRoom(user)}>Join</Button></HStack>
+                    
                       <Box
                        
                         boxShadow="dark-lg"
@@ -304,6 +305,7 @@ console.log(remoteuser)
           </Box>
         </Box>
       </VStack>
+    }
     </>
   );
 };

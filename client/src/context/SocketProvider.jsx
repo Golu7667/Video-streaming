@@ -16,14 +16,14 @@ export const SocketProvider = (props) => {
  
   console.log(user) 
   useEffect(() => {
-    function afterUserStateUpdate(){
+    
       const userInfo =JSON.parse(localStorage.getItem('userInfo'));
       console.log("before useEffect")
       setUser(userInfo);
      
      console.log(user)
-    }
-    afterUserStateUpdate();
+  
+   
   }, [navigate]);
   
   console.log("27 ")
