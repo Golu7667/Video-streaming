@@ -11,7 +11,7 @@ const User=require("./models/userModel")
 
 
 connetDatabase()
-app.use(cors({origin:"http://localhost:3000"}))
+app.use(cors({origin:process.env.FRONTEND_URL}))
 app.use(express.json())
 app.use("/api/use",userRoutes)
 
@@ -28,8 +28,7 @@ app.use("/api/use",userRoutes)
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    // origin: "https://videocall-mauve.vercel.app",
-    origin:"http://localhost:3000",
+    origin:process.env.FRONTEND_URL,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   },
