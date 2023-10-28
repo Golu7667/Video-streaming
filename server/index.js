@@ -41,48 +41,41 @@ for (const [email, socketId] of emailToSocketIdMap) {
 }
 io.on("connection", (socket) => {
   console.log(`Socket Connected`, socket.id);
+
+
   socket.on("room:join", async(data) => {
-    
     const { email, room ,name} = data;
     console.log(email,room,socket.id)
     emailToSocketIdMap.set(email, socket.id);
     socketidToEmailMap.set(socket.id, email); 
     io.to(room).emit("user:joined", { email, id: socket.id ,name}); 
     socket.join(room);
-    const updatedUser = await User.findOneAndUpdate(
-      { email: email }, 
-
-      { $set: { active: true } },
-      
-    {
-      new: true,
-    }
-      )
-      if (updatedUser) {
-        console.log("User is updated");
-      } else {
-        console.log("User not found or update failed");
-      }
     io.to(socket.id).emit("room:join", data);
   });   
-  socket.on("user:offline",(data)=>{
+  
 
-  })
+
   socket.on("user:call", ({ to, offer }) => {
     console.log(socket.id,"user:call")
     io.to(to).emit("incomming:call", { from: socket.id, offer });
   });
+
+
 
   socket.on("call:accepted", ({ to, ans }) => {
     console.log(to,ans)
     io.to(to).emit("call:accepted", { from: socket.id, ans });
   });
   
+
+
   socket.on("peer:nego:needed", ({ to, offer }) => {
     console.log("peer:nego:needed");
     console.log(to,offer)
     io.to(to).emit("peer:nego:needed", { from: socket.id, offer });
   });
+
+
 
   socket.on("peer:nego:done", ({ to, ans }) => {
     console.log("peer:nego:done");
@@ -90,6 +83,8 @@ io.on("connection", (socket) => {
     io.to(to).emit("peer:nego:final", { from: socket.id, ans });
   });
   
+
+
   socket.on("call:disconnect", () => { 
     const email = socketidToEmailMap.get(socket.id);
     console.log("disconnect")
@@ -101,9 +96,7 @@ io.on("connection", (socket) => {
     }
     console.log(`Socket Disconnected`, socket.id);   
   });
-  socket.off("setup", () => {
-    console.log("USER DISCONNECTED");
-    socket.leave(userData._id);
-  });
+
+ 
 
 }); 

@@ -66,7 +66,11 @@ const LobbyScreen = () => {
      }
    
       try{
-      const user= await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/use/`,{email,name})
+        const requestData = {
+          email: email.toLowerCase(),
+          name:  name.toLowerCase(),
+        };
+      const user= await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/use/`,requestData )
       console.log(user.data)  
        toast({
         title:"User Join",

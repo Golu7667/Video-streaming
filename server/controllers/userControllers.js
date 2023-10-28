@@ -3,6 +3,7 @@ const asyncHandler = require("express-async-handler");
 
 const userData = asyncHandler(async (req, res, next) => {
   const { email, name } = req.body;
+  
   console.log(email, name, req.body);
   if (!email || !name) {
     res.status(400);
@@ -10,7 +11,7 @@ const userData = asyncHandler(async (req, res, next) => {
   }
 
   const userExits = await User.findOne({ email });
-   console.log(userExits)
+  
   if (userExits) {
     const user=await User.findOne({email})
     

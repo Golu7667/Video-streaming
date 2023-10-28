@@ -8,6 +8,7 @@ const userSchema=mongoose.Schema({
 },
 { timestaps: true })
 
+
 userSchema.pre('save', function (next) {
     this.name = this.name.toLowerCase();
     this.email = this.email.toLowerCase()
