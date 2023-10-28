@@ -20,15 +20,16 @@ import { useSocket } from "../context/SocketProvider";
 import { VscAccount } from "react-icons/vsc";
 import RoomPage from "./Room";
 import { Routes, Route } from "react-router-dom";
-
+import peer from "../service/peer";
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [login, setLogin] = useState();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
-
+  const [myStream, setMyStream] = useState();
  const {user,setRemoteUser,socket,remoteuser,setLogout}=useSocket()
+  const [mySocketId,SetMySocketId]=useState(null)
   
 
   console.log(remoteSocketId)
@@ -38,7 +39,62 @@ console.log(login)
  const handleJoinRoom = (login) => {
   console.log("handle Room join")
   socket.emit("room:join", { email: login.email, room: 1, name:login.name });
+  socket.on("user:joined", (data) => {
+    // Data contains the email, socket.id, and name
+    const { email, id, name } = data;
+  
+    SetMySocketId(id)
+    console.log(`User ${name} with email ${email} and ID ${id} has joined the room.`);
+   
+  });
 }
+
+const handleIncommingCall = useCallback(
+  async ({ from, offer }) => {
+    console.log(from,offer)
+    setRemoteUser(from);
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true,
+    });
+    setMyStream(stream);
+    console.log(`Incoming Call`, from, offer);
+    const ans = await peer.getAnswer(offer);
+    socket.emit("call:accepted", { to: from, ans });
+  },
+  [socket]
+);
+
+const handleCallUser = useCallback(async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    });
+    const offer = await peer.getOffer();
+    socket.emit("user:call", { to: remoteuser, offer });
+   
+   
+    setMyStream(stream);
+    
+  } catch (error) {
+    if (error.name === 'NotAllowedError') {
+      // The user denied camera or microphone access
+      window.alert('This is a simple alert message.');
+     
+      // You can show a message to the user or handle this case as needed
+    } else if (error.name === 'NotFoundError') {
+      // The requested device is not found
+      window.alert('Requested camera or microphone not found');
+     
+      // You can show a message to the user or handle this case as needed
+    } else {
+      // Handle other errors as needed
+      window.alert('Error accessing camera and microphone:', error);
+      
+    }
+  }
+}, [remoteuser, socket, setMyStream, ]);
 
 
 
@@ -74,21 +130,14 @@ console.log(remoteuser)
     setData(userdata);
   };
 
-  const handleIncommingCall = useCallback(
-    async ({ from, offer }) => {
-     console.log(from,offer)
-     
-      
-     
-    },
-    [socket]
-  );
+  
 
   const handleselect = (remoteuser) => {
       console.log("handleselect")
-    
-      setRemoteUser(remoteuser)
+      handleCallUser()
       handleSubmitForm()
+      setRemoteUser(remoteuser)
+     
       navigate("/room/1")
      
   };
@@ -99,18 +148,57 @@ console.log(remoteuser)
     navigate("/")
    
   };
+  const sendStreams = useCallback(() => {
+    for (const track of myStream.getTracks()) {
+      peer.peer.addTrack(track, myStream);
+    }
+  }, [myStream]);
 
- 
+  const handleCallAccepted = useCallback(
+    ({ from, ans }) => {
+      peer.setLocalDescription(ans);
+      console.log("Call Accepted!");
+      sendStreams();
+    },
+    [sendStreams]
+  );
+  const handleNegoNeeded = useCallback(async () => {
+    const offer = await peer.getOffer();
+    socket.emit("peer:nego:needed", { offer, to: remoteuser });
+  }, [remoteuser, socket]);
 
+  useEffect(() => {
+    peer.peer.addEventListener("negotiationneeded", handleNegoNeeded);
+    return () => {
+      peer.peer.removeEventListener("negotiationneeded", handleNegoNeeded);
+    };
+  }, [handleNegoNeeded]);
 
-  // useEffect(() => {
-  //   socket.on("room:join", handleJoinRoom(user));
-  //   // socket.on("user:joined", handleUserJoined);
-  //   return () => {
-  //     socket.off("room:join", handleJoinRoom(user));
-  //     // socket.off("user:joined", handleUserJoined);
-  //   }
-  // },[ socket, handleJoinRoom,user])
+  const handleNegoNeedIncomming = useCallback(
+    async ({ from, offer }) => {
+      const ans = await peer.getAnswer(offer);
+      socket.emit("peer:nego:done", { to: from, ans });
+    },
+    [socket]
+  );
+
+  const handleNegoNeedFinal = useCallback(async ({ ans }) => {
+    await peer.setLocalDescription(ans);
+  }, []);
+
+  useEffect(() => {
+    socket.on("incomming:call", handleIncommingCall);
+    socket.on("call:accepted", handleCallAccepted);
+    socket.on("peer:nego:needed", handleNegoNeedIncomming);
+    socket.on("peer:nego:final", handleNegoNeedFinal);
+    return () => {
+      socket.off("incomming:call", handleIncommingCall);
+      socket.off("call:accepted", handleCallAccepted);
+      socket.off("peer:nego:needed", handleNegoNeedIncomming);
+      socket.off("peer:nego:final", handleNegoNeedFinal);
+    }
+  },[ socket,  handleIncommingCall, handleNegoNeedIncomming,
+    handleNegoNeedFinal,])
 
   return (
     <> { !user ? <h1>Loading</h1>:
@@ -291,7 +379,7 @@ console.log(remoteuser)
                         </Text>
                         <Box w="70%" display="flex" alignItems="center" justifyContent='flex-end'>
                         <Text  color="black"   fontFamily="Cedarville Cursive">user.email</Text>
-                        <Button bg="green.500" mx="2px" color="white"  _hover={{ bgColor: "green.300", color: "white" }} >Accepte</Button> 
+                        <Button bg="green.500" mx="2px" color="white"  _hover={{ bgColor: "green.300", color: "white" }} onClick={()=>handleCallAccepted}>Accepte</Button> 
                         <Button bg="tomato"  color="white"  _hover={{ bgColor: "tomato.100", color: "white" }}>Decline</Button>
                         </Box>
                       </Box>

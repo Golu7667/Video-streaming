@@ -36,7 +36,9 @@ const io = require("socket.io")(server, {
 
 const emailToSocketIdMap = new Map();  
 const socketidToEmailMap = new Map();
-
+for (const [email, socketId] of emailToSocketIdMap) {
+  console.log(`Email: ${email}, Socket ID: ${socketId}`);
+}
 io.on("connection", (socket) => {
   console.log(`Socket Connected`, socket.id);
   socket.on("room:join", async(data) => {
@@ -65,7 +67,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("user:call", ({ to, offer }) => {
-    console.log(socket.id,offer)
+    console.log(socket.id,"user:call")
     io.to(to).emit("incomming:call", { from: socket.id, offer });
   });
 
