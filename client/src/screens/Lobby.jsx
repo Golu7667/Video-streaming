@@ -21,7 +21,6 @@ import axios from "axios"
 
 const LobbyScreen = () => {
   const [email, setEmail] = useState("");
-  const [room, setRoom] = useState("");
   const [name,setName]=useState("")
   const [loading,setLoading]=useState(false)
 
@@ -106,7 +105,7 @@ const LobbyScreen = () => {
       }
      
     }, 
-    [email, room, socket,name]
+    [email, socket,name]
   );
  
    
@@ -182,19 +181,6 @@ const LobbyScreen = () => {
                     type="email"
                     placeholder="Enter Your Email Address"
                     onChange={(e) => setEmail(e.target.value)}
-                    bg="white"
-                  />
-                </HStack>
-              </FormControl>
-
-              <FormControl id="room" isRequired>
-                <HStack>
-                  <FormLabel color="black">Room</FormLabel>
-                  <Input
-                    value={room}
-                    type="room"
-                    placeholder="Enter Your Room Number"
-                    onChange={(e) => setRoom(e.target.value)}
                     bg="white"
                   />
                 </HStack>

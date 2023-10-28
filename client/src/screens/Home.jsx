@@ -23,6 +23,9 @@ import RoomPage from "./Room";
 import { Routes, Route } from "react-router-dom";
 import peer from "../service/peer";
 
+
+
+
 const HomePage = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -32,6 +35,7 @@ const HomePage = () => {
  const {user,setRemoteUser,socket,remoteuser,setLogout}=useSocket()
   const [mySocketId,SetMySocketId]=useState(null)
   const [dataButton,setDataButton]=useState(false)
+  const [roomId,setRoomId]=useState("mittingId157")
    const toast=useToast()
 
   console.log(remoteSocketId)
@@ -40,7 +44,7 @@ const HomePage = () => {
 
  const handleJoinRoom = (login) => {
   console.log("handle Room join")
-  socket.emit("room:join", { email: login.email, room: 1, name:login.name });
+  socket.emit("room:join", { email: login.email, room:roomId, name:login.name });
   console.log("handle after")
   socket.on("user:joined", (data) => {
     // Data contains the email, socket.id, and name
@@ -151,7 +155,7 @@ console.log(remoteuser)
       handleSubmitForm()
       setRemoteUser(remoteuser)
      
-      navigate("/room/1")
+      navigate(`/room/${roomId}`)
      
   };
   const handleSignout = () => {
