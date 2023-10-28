@@ -9,7 +9,8 @@ import {
   Avatar,
   AvatarBadge,
   Button,
-  Skeleton
+  Skeleton,
+  useToast
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import profile from "../profile.svg";
@@ -30,24 +31,35 @@ const HomePage = () => {
   const [myStream, setMyStream] = useState();
  const {user,setRemoteUser,socket,remoteuser,setLogout}=useSocket()
   const [mySocketId,SetMySocketId]=useState(null)
-  
+  const [dataButton,setDataButton]=useState(false)
+   const toast=useToast()
 
   console.log(remoteSocketId)
 
 
-console.log(login)
+
  const handleJoinRoom = (login) => {
   console.log("handle Room join")
   socket.emit("room:join", { email: login.email, room: 1, name:login.name });
+  console.log("handle after")
   socket.on("user:joined", (data) => {
     // Data contains the email, socket.id, and name
     const { email, id, name } = data;
-  
+     console.log(id)
+    SetMySocketId(id)
+    toast({
+      title:"Uer joined",
+      status:"success",
+      duration:1000, 
+      isClosable: true, 
+      position: "bottom",
+     }) 
     SetMySocketId(id)
     console.log(`User ${name} with email ${email} and ID ${id} has joined the room.`);
    
   });
 }
+
 
 const handleIncommingCall = useCallback(
   async ({ from, offer }) => {
@@ -127,6 +139,7 @@ console.log(remoteuser)
   const handeluser = async () => {
     const allusers = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/use/users`);
     const userdata = allusers.data;
+    setDataButton(true)
     setData(userdata);
   };
 
@@ -243,7 +256,7 @@ console.log(remoteuser)
               overflowY="auto"
              
             >
-              {data.length === 0 && (
+              {dataButton === false ? (
                 <Box w={["100%", "100%", "100%"]}
               h="70vh" display="flex" alignItems="center" justifyContent="center">
                 <Button
@@ -258,9 +271,9 @@ console.log(remoteuser)
                   See all users
                 </Button>
                 </Box>
-              )}
+              )  : <></>}
               <VStack>
-                {data.map((user) => (
+                {dataButton === true && data.length===0 ?<Box w="full" h="100%" display="flex" justifyContent="center" alignItems="center"><Text fontFamily="Arvo">No Record Found</Text></Box> :data.map((user) => (
                   <Box
                     key={user._id}
                     boxShadow="dark-lg"
@@ -277,8 +290,11 @@ console.log(remoteuser)
                     <Avatar
                       name="Dan Abrahmov"
                       src="https://bit.ly/dan-abramov"
-                    >
+                    >{user.active ?
                       <AvatarBadge boxSize="1em" bg="green.500" />
+                      :
+                      <AvatarBadge  bg='tomato' boxSize="1em" />
+                    }
                     </Avatar>
                     <Text color="black" fontFamily="Arvo" ml="10px" w="100px">
                       {user.name}
@@ -337,6 +353,9 @@ console.log(remoteuser)
                       </Box>
                       <Box fontFamily="Arvo" color="white">
                         Email:{login.email}
+                      </Box>
+                      <Box fontFamily="Arvo" color="white">
+                        Socket Id:{mySocketId}
                       </Box>
                     </VStack>
                   </Box>

@@ -51,8 +51,20 @@ const LobbyScreen = () => {
 
 
     async() => {
+      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
      setLoading(true)
-    console.log(email,name)
+     if (!emailRegex.test(email)) {
+      setLoading(false)
+      toast({
+        title:"Please Enter Valid Email Id",
+        status:"error",
+        duration:5000, 
+        isClosable: true, 
+        position: "bottom",
+       }) 
+       return ;
+     }
+   
       try{
       const user= await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/use/`,{email,name})
       console.log(user.data)  

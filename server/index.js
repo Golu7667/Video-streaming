@@ -64,8 +64,10 @@ io.on("connection", (socket) => {
         console.log("User not found or update failed");
       }
     io.to(socket.id).emit("room:join", data);
-  });
+  });   
+  socket.on("user:offline",(data)=>{
 
+  })
   socket.on("user:call", ({ to, offer }) => {
     console.log(socket.id,"user:call")
     io.to(to).emit("incomming:call", { from: socket.id, offer });
@@ -75,7 +77,7 @@ io.on("connection", (socket) => {
     console.log(to,ans)
     io.to(to).emit("call:accepted", { from: socket.id, ans });
   });
-
+  
   socket.on("peer:nego:needed", ({ to, offer }) => {
     console.log("peer:nego:needed");
     console.log(to,offer)
@@ -98,6 +100,10 @@ io.on("connection", (socket) => {
       socketidToEmailMap.delete(socket.id);
     }
     console.log(`Socket Disconnected`, socket.id);   
+  });
+  socket.off("setup", () => {
+    console.log("USER DISCONNECTED");
+    socket.leave(userData._id);
   });
 
 }); 
