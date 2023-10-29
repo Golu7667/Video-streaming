@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
-  Center,
   HStack,
   Text,
   VStack,
   Img,
   Avatar,
-  AvatarBadge,
   Button,
   Skeleton,
   useToast,
@@ -15,31 +13,22 @@ import {
 import { useNavigate } from "react-router-dom";
 import profile from "../profile.svg";
 import axios from "axios";
-import { CiMicrophoneOn, CiMicrophoneOff } from "react-icons/ci";
 import { FiPhone } from "react-icons/fi";
 import { useSocket } from "../context/SocketProvider";
-import { VscAccount } from "react-icons/vsc";
-import RoomPage from "./Room";
-import { Routes, Route } from "react-router-dom";
-import peer from "../service/peer";
+
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [login, setLogin] = useState();
-  const [remoteSocketId, setRemoteSocketId] = useState(null);
-  const [myStream, setMyStream] = useState();
-  const { user, setRemoteUser, socket, remoteuser, setLogout } = useSocket();
-  const [mySocketId, SetMySocketId] = useState(null);
+  const { user ,socket } = useSocket();
+ 
   const [dataButton, setDataButton] = useState(false);
   const [roomId, setRoomId] = useState("mittingId157");
-  const toast = useToast();
   const [email,setEmail]=useState()
   
   const handleSubmitForm = useCallback(
     (e) => {
-      
-      
       socket.emit("room:join", { email, roomId });
     },
     [email, roomId, socket]
@@ -87,7 +76,6 @@ const HomePage = () => {
   const handleSignout = () => {
     console.log("logout");
     localStorage.removeItem("userInfo");
-    setLogout(true);
     navigate("/");
   };
   

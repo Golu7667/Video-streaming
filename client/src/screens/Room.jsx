@@ -1,33 +1,26 @@
-import React, { useEffect, useCallback, useState, useRef  } from "react";
+import React, { useEffect, useCallback, useState  } from "react";
 import ReactPlayer from "react-player";
 import peer from "../service/peer";
 import { useSocket } from "../context/SocketProvider";
 import {
   Box,
-  Input,
   Button,
   HStack,
   VStack,
   Center,
   Img,
   Text,
-  Divider,
-  Circle,
   Heading,
-  Skeleton,
-  
 } from "@chakra-ui/react";
 import { FiPhone } from "react-icons/fi";
 import { VscCallIncoming } from "react-icons/vsc";
 import video from "../vide.svg"
-import waveAudio from "../digital-wave-audio.svg"
-import {CiMicrophoneOn,CiMicrophoneOff} from "react-icons/ci"
 import { useNavigate } from "react-router-dom";
 
 
 
 
-const RoomPage = (props) => {
+const RoomPage = () => {
   const {socket}= useSocket();
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
@@ -113,8 +106,14 @@ const RoomPage = (props) => {
   }, []);
 
   const handleDisconnect=()=>{
-   
- 
+    const audioTrack = myStream.getAudioTracks()[0];
+    const videoTrack = myStream.getVideoTracks()[0];
+    const audioTrack1 = remoteStream.getAudioTracks()[0];
+    const videoTrack1 = remoteStream.getVideoTracks()[0];
+    audioTrack.stop(); // Stop the audio track
+    videoTrack.stop(); // Stop the video track
+    audioTrack1.stop(); // Stop the audio track
+    videoTrack1.stop(); // Stop the video track
     navigate("/home")
   }
 
@@ -253,7 +252,7 @@ const RoomPage = (props) => {
         </Box>
       </Box>
        <Center >
-      
+      {remoteStream &&(
         <Button
           variant="solid"
           colorScheme="red"
@@ -262,8 +261,8 @@ const RoomPage = (props) => {
           onClick={()=>handleDisconnect()}
         >
           Disconnect
-        </Button>
-  
+        </Button>)
+      }
       </Center>
      
     </>
