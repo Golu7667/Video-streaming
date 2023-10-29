@@ -28,72 +28,31 @@ import { useNavigate } from "react-router-dom";
 
 
 const RoomPage = (props) => {
-  const {socket,user,remoteuser,setRemoteUser} = useSocket();
- 
+  const {socket}= useSocket();
+  const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
   const [remoteStream, setRemoteStream] = useState();
-  const [callButton, setCallButton] = useState(false);
   const navigate=useNavigate()
-
-  
-  
   
 
-  useEffect(() => {
-    
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-   if(userInfo){
-   
-   }else{
-    navigate("/")
-   }
- 
-}, []);
+  const handleUserJoined = useCallback(({ email, id }) => {
+    console.log(`Email ${email} joined room`);
+    setRemoteSocketId(id);
+  }, []);
 
-  
-
-   const handleCallUser = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      });
-      const offer = await peer.getOffer();
-      socket.emit("user:call", { to: remoteuser, offer });
-     
-     
-      setMyStream(stream);
-      setCallButton(true);
-    } catch (error) {
-      if (error.name === 'NotAllowedError') {
-        // The user denied camera or microphone access
-        window.alert('This is a simple alert message.');
-       
-        // You can show a message to the user or handle this case as needed
-      } else if (error.name === 'NotFoundError') {
-        // The requested device is not found
-        window.alert('Requested camera or microphone not found');
-       
-        // You can show a message to the user or handle this case as needed
-      } else {
-        // Handle other errors as needed
-        window.alert('Error accessing camera and microphone:', error);
-        
-      }
-    }
-  }, [remoteuser, socket, setMyStream, setCallButton]);
-  
- 
-
-
-
-
-
+  const handleCallUser = useCallback(async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true,
+    });
+    const offer = await peer.getOffer();
+    socket.emit("user:call", { to: remoteSocketId, offer });
+    setMyStream(stream);
+  }, [remoteSocketId, socket]);
 
   const handleIncommingCall = useCallback(
     async ({ from, offer }) => {
-      console.log(from,offer)
-      setRemoteUser(from);
+      setRemoteSocketId(from);
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: true,
@@ -123,8 +82,8 @@ const RoomPage = (props) => {
 
   const handleNegoNeeded = useCallback(async () => {
     const offer = await peer.getOffer();
-    socket.emit("peer:nego:needed", { offer, to: remoteuser });
-  }, [remoteuser, socket]);
+    socket.emit("peer:nego:needed", { offer, to: remoteSocketId });
+  }, [remoteSocketId, socket]);
 
   useEffect(() => {
     peer.peer.addEventListener("negotiationneeded", handleNegoNeeded);
@@ -145,51 +104,43 @@ const RoomPage = (props) => {
     await peer.setLocalDescription(ans);
   }, []);
 
-  const handleDisconnect = () => {
-    socket.emit("call:disconnect", { to: remoteuser });
-
-    if (myStream) {
-      myStream.getTracks().forEach((track) => {
-        track.stop();
-      });
-    }
-   
-    
-    
-  };
   useEffect(() => {
     peer.peer.addEventListener("track", async (ev) => {
       const remoteStream = ev.streams;
-      console.log(remoteStream[0])
       console.log("GOT TRACKS!!");
       setRemoteStream(remoteStream[0]);
     });
-  }, [setRemoteStream]);
+  }, []);
+
+  const handleDisconnect=()=>{
+    navigate("/home")
+  }
+
 
   useEffect(() => {
-   
+    socket.on("user:joined", handleUserJoined);
     socket.on("incomming:call", handleIncommingCall);
     socket.on("call:accepted", handleCallAccepted);
     socket.on("peer:nego:needed", handleNegoNeedIncomming);
     socket.on("peer:nego:final", handleNegoNeedFinal);
-    socket.on("call:disconnect", handleDisconnect);
+
     return () => {
-     
+      socket.off("user:joined", handleUserJoined);
       socket.off("incomming:call", handleIncommingCall);
       socket.off("call:accepted", handleCallAccepted);
       socket.off("peer:nego:needed", handleNegoNeedIncomming);
       socket.off("peer:nego:final", handleNegoNeedFinal);
-      socket.off("call:disconnect", handleDisconnect)
     };
   }, [
     socket,
-   
+    handleUserJoined,
     handleIncommingCall,
     handleCallAccepted,
     handleNegoNeedIncomming,
     handleNegoNeedFinal,
-    handleDisconnect
   ]);
+
+
 
   return (
     <>
@@ -200,27 +151,29 @@ const RoomPage = (props) => {
             <Img  src={video} w="40px"/> 
             <Heading fontFamily="Arvo">Video Call</Heading>
             </HStack>
-            <Text fontFamily="Arvo">{remoteuser ? "Connected" : "No one in room"}</Text>
+            <Text fontFamily="Arvo">{remoteSocketId ? "Connected" : "No one in room"}</Text>
           </VStack>
         </Center>
       </VStack>
       <Box w="100%"  display={{ base: "block", md: "flex" }} my="10px">
         <Box w={["100%","100%","50%"]} my="10px">
+        <Box w="100%" display="flex" justifyContent="center" fontFamily="Arvo">My Video</Box>
           <Box
             w="100%"
-            h="460px"
+            h="410px"
             display="flex"
             justifyContent="center"
             alignItems="center"
             boxShadow="dark-lg"
             borderRadius="10px"
           >
+            
             {myStream && (
               <VStack>
                 <ReactPlayer
                   playing
                  
-                  height="460px"
+                  height="410px"
                   width="100%"
                   url={myStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
@@ -252,24 +205,23 @@ const RoomPage = (props) => {
           </Center>
         </Box>
         <Box w={["100%","100%","50%"]} my="10px">
+        <Box w="100%" display="flex" justifyContent="center" fontFamily="Arvo">Remote Video</Box>
           <Box
             w="100%"
-            h="460px"
+            h="410px"
             display="flex"
             justifyContent="center"
             alignItems="center"
             boxShadow="dark-lg"
             borderRadius="10px"
           >
-            {!remoteStream && callButton && (
-              <Skeleton w="100%" h="400px" bg="blue.500" />
-            )}
+            
             {remoteStream && (
               <VStack>
                 <ReactPlayer
                   playing
                
-                  height="460px"
+                  height="410px"
                   width="100%"
                   url={remoteStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
@@ -299,18 +251,17 @@ const RoomPage = (props) => {
         </Box>
       </Box>
        <Center >
-      {remoteuser && (
+      
         <Button
           variant="solid"
           colorScheme="red"
           backgroundColor="red"
           width="200px"
-          onClick={handleDisconnect}
-          
+          onClick={()=>handleDisconnect()}
         >
           Disconnect
         </Button>
-      )}
+  
       </Center>
      
     </>
