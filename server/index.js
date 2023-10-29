@@ -83,17 +83,7 @@ io.on("connection", (socket) => {
   
 
 
-  socket.on("call:disconnect", () => { 
-    const email = socketidToEmailMap.get(socket.id);
-    console.log("disconnect")
-    console.log(email)
-    if (email) {
-      console.log(email)
-      emailToSocketIdMap.delete(email);
-      socketidToEmailMap.delete(socket.id);
-    }
-    console.log(`Socket Disconnected`, socket.id);   
-  });
+  
 
  
 
