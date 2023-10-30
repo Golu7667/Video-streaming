@@ -222,7 +222,7 @@ const RoomPage = () => {
                 <ReactPlayer
                   playing
                   controls
-                  
+                  muted
                   height="410px"
                   width="100%"
                   url={myStream}
