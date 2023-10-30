@@ -176,7 +176,7 @@ const RoomPage = () => {
                   controls
                   height="410px"
                   width="100%"
-                  url={remoteStream}
+                  url={myStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
                 
@@ -225,7 +225,7 @@ const RoomPage = () => {
                   muted
                   height="410px"
                   width="100%"
-                  url={myStream}
+                  url={remoteStream}
                   style={{ borderRadius: "30px", overflow: "hidden" }}
                 />
                    
