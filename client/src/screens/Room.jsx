@@ -173,7 +173,7 @@ const RoomPage = () => {
               <VStack>
                 <ReactPlayer
                   playing
-                 
+                  controls
                   height="410px"
                   width="100%"
                   url={myStream}
@@ -221,7 +221,7 @@ const RoomPage = () => {
               <VStack>
                 <ReactPlayer
                   playing
-               
+                  controls
                   height="410px"
                   width="100%"
                   url={remoteStream}
